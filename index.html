@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Klussen met Liefde</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --panel:#111827ee;   /* gray-900 w/alpha */
+      --ink:#e5e7eb;       /* gray-200 */
+      --muted:#94a3b8;     /* slate-400 */
+      --accent:#38bdf8;    /* sky-400 */
+      --good:#10b981;      /* emerald-500 */
+      --warn:#f59e0b;      /* amber-500 */
+      --danger:#ef4444;    /* red-500 */
+      --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+      --radius: 18px;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; background: radial-gradient(1200px 800px at 80% -10%, #1e293b 10%, transparent 60%),
+                                      radial-gradient(900px 600px at -20% 120%, #0b1020 10%, transparent 60%),
+                                      var(--bg);
+      color:var(--ink); font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .wrap{max-width:1080px; margin:0 auto; padding:24px}
+    header{
+      display:flex; align-items:center; gap:16px; justify-content:space-between;
+      padding:20px 0 8px; position:sticky; top:0; backdrop-filter: blur(8px); z-index:5;
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{width:42px; height:42px; border-radius:12px; background: conic-gradient(from 210deg, #f472b6, #60a5fa, #34d399, #f472b6); box-shadow: var(--shadow)}
+    .brand h1{margin:0; font-size:20px; letter-spacing:.5px}
+    nav a{color:var(--muted); text-decoration:none; margin-left:18px}
+    nav a:hover{color:var(--ink)}
+
+    .hero{margin:24px 0 32px; display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:center}
+    .panel{background:var(--panel); border:1px solid #1f2937; border-radius:var(--radius); box-shadow:var(--shadow)}
+    .pad{padding:24px}
+    .hero h2{margin:0 0 10px; font-size:38px; line-height:1.1}
+    .hero p{margin:10px 0 0; color:var(--muted)}
+    .btn{appearance:none; border:0; border-radius:14px; padding:12px 18px; color:#0a0f1c; background:var(--accent); font-weight:700; cursor:pointer}
+    .btn:hover{filter:brightness(1.06)}
+    .cta{display:flex; gap:12px; margin-top:16px; flex-wrap:wrap}
+
+    .photo{overflow:hidden; border-radius:var(--radius)}
+    .photo img{display:block; width:100%; height:auto; object-fit:cover}
+
+    .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:28px 0}
+    .card .title{font-weight:700; font-size:18px; margin-bottom:6px}
+    .card p{color:var(--muted); margin:6px 0 0}
+
+    .two{display:grid; grid-template-columns:1.1fr .9fr; gap:18px}
+    label{display:block; font-weight:600; margin:4px 0 6px}
+    textarea, input[type="text"]{
+      width:100%; background:#0b1222; color:var(--ink); border:1px solid #1f2a44; border-radius:12px; padding:12px 14px; outline:none
+    }
+    textarea:focus, input[type="text"]:focus{box-shadow: var(--ring); border-color:#23314f}
+    textarea{min-height:150px; resize:vertical}
+
+    .note{font-size:14px; color:var(--muted)}
+    .muted{color:var(--muted)}
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#0b1222; padding:2px 6px; border-radius:6px; border:1px solid #1f2a44}
+
+    footer{margin:44px 0 20px; color:#9aa7bb; font-size:14px; text-align:center}
+    .small{font-size:13px; color:#8b9bb4}
+
+    @media (max-width:920px){
+      .hero{grid-template-columns:1fr;}
+      .two{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><div class="logo" aria-hidden></div><h1>Klussen met Liefde</h1></div>
+      <nav>
+        <a href="#actie">Actie</a>
+        <a href="#doemee">Doe mee</a>
+        <a href="#over">Over</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="panel pad">
+        <h2>Hier repareren we meer dan spullen.</h2>
+        <p>We herstellen ook vertrouwen, relaties en buurten. Liefde is geen woord; het is een werkwoord. Als liefde in jou bestaat, dan is dit het moment om haar te delen.</p>
+        <div class="cta">
+          <a class="btn" href="#doemee">Schrijf een boodschap</a>
+          <a class="btn" style="background:var(--good)" href="#actie">Bekijk de actuele actie</a>
+        </div>
+      </div>
+      <figure class="photo panel">
+        <!-- Vervang onderstaande bron door je uiteindelijke foto-bestand in dezelfde map (bijv. sam-wesley.jpg) -->
+        <img src="sam-wesley.jpg" alt="Verbondenheid – twee mensen, één glimlach" />
+      </figure>
+    </section>
+
+    <section class="panel pad" id="actie">
+      <h3 style="margin-top:0">Actuele actie • Stein & Urmond</h3>
+      <p class="muted">Een liefdevolle uitnodiging aan één persoon om iets kleins recht te zetten – zodat iets groots kan helen. Geen wraak, maar herstel.</p>
+      <div class="grid">
+        <div class="card">
+          <div class="title">Wat speelt er?</div>
+          <p>Een telefoon en horloge zijn in gebruik, terwijl contract en kosten bij een ander liggen. We vragen om een eenvoudige keuze: <strong>retourneren</strong> of <strong>betalen</strong>. Zo groeit vertrouwen.</p>
+        </div>
+        <div class="card">
+          <div class="title">Wat kun jij doen?</div>
+          <p>Schrijf één zin van liefde of bemoediging. Gooi je kaartje in de bus (<span class="kbd">Marijkenlaan 14</span>) of stuur het per post. Klein gebaar, grote impact.</p>
+        </div>
+        <div class="card">
+          <div class="title">Waarom dit werkt</div>
+          <p>Liefde vermenigvuldigt zich. Eén briefje is aandacht; honderd briefjes is een golf die gedrag kan veranderen – zonder haat.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="two" id="doemee" style="margin-top:22px">
+      <div class="panel pad">
+        <h3 style="margin-top:0">Schrijf je boodschap</h3>
+        <label for="naam">Je naam (optioneel)</label>
+        <input id="naam" type="text" placeholder="Anoniem is ook oké" />
+        <label for="msg">Jouw woorden van liefde</label>
+        <textarea id="msg" placeholder="Schrijf hier je zin of korte boodschap…"></textarea>
+        <div class="cta">
+          <button class="btn" onclick="copyMsg()">Kopieer tekst</button>
+          <button class="btn" style="background:var(--accent)" onclick="mailMsg()">Verstuur via e‑mail</button>
+        </div>
+        <p class="note">Je tekst wordt alleen lokaal op je apparaat bewaard (concept). Privacy‑vriendelijk, geen trackers.</p>
+      </div>
+      <div class="panel pad">
+        <h3 style="margin-top:0">Onze belofte</h3>
+        <p>We kiezen altijd voor herstel boven verwijt. Juridisch doen we wat nodig is om te beschermen; menselijk doen we wat mogelijk is om te helen. Dit initiatief is zelfstandig, eenvoudig te hosten en blijft open voor iedereen die liefde praktisch wil maken.</p>
+        <p class="small">Heb je vragen of wil je helpen? Stuur een e‑mail naar <a href="mailto:info@klussenmetliefde.nl">info@klussenmetliefde.nl</a>.</p>
+      </div>
+    </section>
+
+    <section class="panel pad" id="over" style="margin-top:22px">
+      <h3 style="margin-top:0">Over Klussen met Liefde</h3>
+      <p>Klussen met Liefde is een onafhankelijk initiatief. We bouwen aan oplossingen waar recht en liefde elkaar ontmoeten. Soms is dat een brief, soms een buurtactie, soms een gesprek. Altijd met een helder kompas: behandel de ander zoals je zelf behandeld wilt worden.</p>
+    </section>
+
+    <footer>
+      © <span id="yr"></span> Klussen met Liefde · Handgemaakt, zonder WordPress of trackers
+    </footer>
+  </div>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    const key = "kml_draft";
+    const saved = localStorage.getItem(key);
+    if(saved){ try{ const {n,m}=JSON.parse(saved); $('#naam').value=n||""; $('#msg').value=m||""; }catch(e){} }
+    function persist(){ localStorage.setItem(key, JSON.stringify({n:$('#naam').value, m:$('#msg').value})) }
+    $('#naam').addEventListener('input', persist); $('#msg').addEventListener('input', persist);
+
+    function copyMsg(){
+      const text = compose();
+      navigator.clipboard.writeText(text).then(()=>{
+        alert('Gekopieerd! Je kunt dit nu plakken in je kaartje of e‑mail.')
+      })
+    }
+    function mailMsg(){
+      const text = encodeURIComponent(compose());
+      const to = 'liefde@klussenmetliefde.nl'; // pas aan zoals gewenst
+      location.href = `mailto:${to}?subject=Mijn boodschap van liefde&body=${text}`;
+    }
+    function compose(){
+      const n = $('#naam').value.trim();
+      const m = $('#msg').value.trim();
+      return (n?`Van: ${n}\n\n`:``)+m+"\n\n— Verzonden via klussenmetliefde.nl";
+    }
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
