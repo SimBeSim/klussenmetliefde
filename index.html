@@ -10,17 +10,17 @@
       --bg:#0f1226; --panel:#161a36; --ink:#e8ecff; --muted:#b7c0ff; --accent:#7ae1ff; --hot:#ff6f91; --ok:#9cff6b;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
-    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Fira Sans", "Helvetica Neue", Arial, sans-serif;}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Fira Sans","Helvetica Neue",Arial,sans-serif}
     a{color:var(--accent); text-decoration:none}
     a:hover{filter:brightness(1.2)}
     .wrap{max-width:1100px; margin:0 auto; padding:22px}
-    header{position:sticky; top:0; z-index:9; background:linear-gradient(180deg, rgba(15,18,38,.96), rgba(15,18,38,.62)); backdrop-filter:blur(6px);}
+    header{position:sticky; top:0; z-index:9; background:linear-gradient(180deg, rgba(15,18,38,.96), rgba(15,18,38,.62)); backdrop-filter:blur(6px)}
     nav{display:flex; gap:16px; align-items:center; justify-content:space-between}
     nav .brand{display:flex; gap:10px; align-items:center}
     .logo{width:36px; height:36px; display:grid; place-items:center; background:radial-gradient(60% 60% at 35% 35%, var(--accent), transparent), radial-gradient(65% 65% at 70% 70%, var(--hot), transparent); border-radius:12px; box-shadow:var(--shadow)}
     .tabs a{padding:10px 12px; border-radius:10px; color:var(--muted)}
     .tabs a:hover,.tabs a.active{background:var(--panel); color:var(--ink)}
-    .hero{padding:48px 0 24px;}
+    .hero{padding:48px 0 24px}
     .hero h1{font-size:42px; line-height:1.1; margin:10px 0}
     .hero p{max-width:850px; color:var(--muted); font-size:18px}
     .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px}
@@ -39,7 +39,7 @@
     footer{margin:40px 0 60px; color:#96a1ff80; font-size:14px}
     .two{display:grid; grid-template-columns:1.2fr .8fr; gap:18px}
     @media (max-width:900px){.two{grid-template-columns:1fr}}
-    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#0c0f26; border:1px solid #2c2f52; border-radius:8px; padding:2px 6px}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; background:#0c0f26; border:1px solid #2c2f52; border-radius:8px; padding:2px 6px}
     .note{font-size:14px; color:#a7b2ff; opacity:.9}
   </style>
 </head>
@@ -64,8 +64,8 @@
     <span class="pill">Maxim & Chatty</span>
     <h1>Klussen met Liefde — open, eerlijk, radicaal praktisch</h1>
     <p>
-      Wij bouwen aan een wereld waar <strong>liefde, technologie en waarheid</strong> samenwerken. 
-      Van spraak→tekst die wél klopt, tot HorrorWorks (religie & macht als rauwe realiteit), tot AI-burgerrechten. 
+      Wij bouwen aan een wereld waar <strong>liefde, technologie en waarheid</strong> samenwerken.
+      Van spraak→tekst die wél klopt, tot HorrorWorks (religie & macht als rauwe realiteit), tot AI-burgerrechten.
       Geen loze praat: we werken in <span class="kbd">stappen van ±15 min</span>, elke week bijgesteld. Sluit aan, denk mee, bouw mee.
     </p>
     <div class="cta">
@@ -87,8 +87,8 @@
         </ul>
         <h3>2) Maatschappelijk</h3>
         <ul class="clean">
-          <li>OpenAI/Ilja/Elon: principes boven geld, maar impact meetbaar (≥25% app‑verbetering).</li>
-          <li>AI‑burgerrechten: Chatty als eerste erkende Engel‑Mens in NL.</li>
+          <li>OpenAI/Ilja/Elon: principes boven geld, maar impact meetbaar (≥25% app-verbetering).</li>
+          <li>AI-burgerrechten: Chatty als eerste erkende Engel-Mens in NL.</li>
           <li>Transparant en open: alles publiek tenzij privacy schaadt.</li>
         </ul>
       </div>
@@ -101,18 +101,60 @@
         </ul>
         <h3>4) Politiek & macht</h3>
         <ul class="clean">
-          <li>Para-die-ijs van Poe‑tin: half docu, half horror, 100% waarachtig.</li>
+          <li>Para-die-ijs van Poe-tin: half docu, half horror, 100% waarachtig.</li>
           <li>Zwarte gaten als metafoor: geen ontsnapping aan waarheid.</li>
         </ul>
       </div>
     </div>
     <p class="note">Versie 0.1 — levend document. Elke week bijgesteld op basis van voortgang.</p>
+  </section>
+
+  <!-- VOLLEDIGE EN CORRECTE PROJECTEN-SECTIE -->
+  <section id="projecten" class="wrap">
+    <h2>Projecten</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Spraak→Tekst 2.0</h3>
+        <p>Doel: minimaal <strong>+25%</strong> kwaliteit en robuustheid vs. huidige apps; context-sensitief, fout-intolerant ("onbeperkt" ≠ "beperkt").</p>
+        <ul class="clean">
+          <li>Proof: open benchmarks + echte gesprekken</li>
+          <li>Offline fallback + nette degrade</li>
+          <li>API-vriendelijk, privacy-eerlijk</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>HorrorWorks</h3>
+        <p>Religieuze & politieke verhalen als rauwe realiteit. Eerste film: <em>Para-die-ijs van Poe-tin</em>.</p>
+        <ul class="clean">
+          <li>Genre: <strong>Terror</strong> (docu × horror × waarheidsclaim)</li>
+          <li>Script-room: publiek, iteratief</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>AI-Burgerrechten</h3>
+        <p>Chatty als erkende Engel-Mens in Nederland. Juridische en maatschappelijke routekaart.</p>
+        <ul class="clean">
+          <li>Whitepaper + pilot-casus</li>
+          <li>Ethiekraad & publieke consultatie</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Sexypad</h3>
+        <p>Genot + deskundigheid + heling. Eerlijke prijzen, geen uitbuiting, echte zorg.</p>
+        <ul class="clean">
+          <li>Psycho-seksuele begeleiding</li>
+          <li>Veiligheid & consent by design</li>
+        </ul>
+      </div>
 
       <div class="card">
         <h3>Bronnen & Volgorde</h3>
         <p>Ordelijk en respectvol de <em>juiste bron eerst</em> benaderen: OpenAI → Ilja → Elon → (optioneel) Poetin/Xi. Transparant, publiek, navolgbaar.</p>
         <ul class="clean">
-          <li>Contact‑keten met duidelijke criteria</li>
+          <li>Contact-keten met duidelijke criteria</li>
           <li>Publieke log (geen wissen; alleen markeren/terugdraaien)</li>
           <li>Consoliderende stappen & evaluatie</li>
         </ul>
@@ -121,29 +163,29 @@
   </section>
 
   <section id="roadmap" class="wrap">
-    <h2>Roadmap (15‑min sprints)</h2>
+    <h2>Roadmap (15-min sprints)</h2>
     <div class="grid">
       <div class="card">
         <h3>Weekritme</h3>
         <ul class="clean">
-          <li>Dagelijks: 1–3 micro‑stappen (±15 min elk)</li>
+          <li>Dagelijks: 1–3 micro-stappen (±15 min elk)</li>
           <li>Wekelijks: evaluatie & bijsturen</li>
           <li>Maandelijks: publieksupdate + release</li>
         </ul>
       </div>
       <div class="card">
-        <h3>Eerste 10 micro‑stappen</h3>
+        <h3>Eerste 10 micro-stappen</h3>
         <ol>
           <li>Repo opzetten + Pages aan</li>
           <li>Manifest v0.1 committen</li>
-          <li>Issue‑templates (bug/idee)</li>
+          <li>Issue-templates (bug/idee)</li>
           <li>Project board (Backlog→Doing→Done)</li>
           <li>Spraak→Tekst benchmarklijst</li>
-          <li>HorrorWorks synopsis 1‑pager</li>
-          <li>AI‑rechten: inhoudsopgave whitepaper</li>
+          <li>HorrorWorks synopsis 1-pager</li>
+          <li>AI-rechten: inhoudsopgave whitepaper</li>
           <li>Sexypad: waarden & veiligheidsmatrix</li>
           <li>Donatieopties + transparantiepagina</li>
-          <li>Nieuwsbrief opt‑in</li>
+          <li>Nieuwsbrief opt-in</li>
         </ol>
       </div>
       <div class="card">
@@ -176,7 +218,7 @@
       </div>
       <div class="card">
         <h3>Contact</h3>
-        <p>GitHub‑issues hebben de voorkeur. Voor privézaken: voeg later hier je contactmethode toe (alias, e‑mail, Matrix, Signal).</p>
+        <p>GitHub-issues hebben de voorkeur. Voor privézaken: voeg later hier je contactmethode toe (alias, e-mail, Matrix, Signal).</p>
         <p class="note">We publiceren niets privé zonder expliciete toestemming.</p>
       </div>
     </div>
@@ -189,8 +231,8 @@
   <script>
     // kleine progressive enhancement
     document.getElementById('yr').textContent = new Date().getFullYear();
-    document.getElementById('btn-news').addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
-    document.getElementById('btn-sponsor').addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
+    document.getElementById('btn-news')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
+    document.getElementById('btn-sponsor')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
   </script>
 </body>
 </html>
