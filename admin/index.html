@@ -8,6 +8,39 @@
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
-    <script>CMS.init();</script>
+    <script>
+      // Init eerst
+      CMS.init();
+
+      // Styles voor de preview (mini-versie van je site-styling)
+      CMS.registerPreviewStyle("/admin/preview.css");
+
+      // Eenvoudige preview van één projectkaart
+      var ProjectPreview = createClass({
+        render: function () {
+          var entry = this.props.entry;
+          var title = entry.getIn(['data','title']) || 'Untitled';
+          var summary = entry.getIn(['data','summary']);
+          var cover = entry.getIn(['data','cover']);
+          var date = entry.getIn(['data','date']);
+          var categorie = entry.getIn(['data','categorie']);
+          var body = this.props.widgetFor('body'); // markdown -> HTML
+
+          // Geef ‘m een vaste Google-kleur in de preview (blauw),
+          // op de site zelf worden kleuren in de grid herhaald.
+          return h('div', { className: 'card g-blue' }, [
+            cover ? h('img', { className: 'cover', src: cover, alt: '' }) : null,
+            h('h3', {}, title),
+            (date || categorie) ? h('div', {className:'meta'},
+              (date ? ('📅 ' + date) : '') + (date && categorie ? ' · ' : '') + (categorie ? ('🏷 ' + categorie) : '')
+            ) : null,
+            summary ? h('p', { className: 'summary' }, summary) : null,
+            h('div', { className: 'content' }, body)
+          ]);
+        }
+      });
+
+      CMS.registerPreviewTemplate('projecten', ProjectPreview);
+    </script>
   </body>
 </html>
