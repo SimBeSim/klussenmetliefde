@@ -1,19 +1,21 @@
 backend:
-  name: git-gateway
-  branch: main  # of master, afhankelijk van je repo
-media_folder: "img/uploads" # waar geüploade afbeeldingen komen
+  name: git-gateway         # gebruikt Netlify Identity + Git Gateway
+  branch: main              # jouw default branch
+
+media_folder: "img/uploads" # waar geüploade plaatjes komen in de repo
 public_folder: "/img/uploads"
+
+site_url: "https://inquisitive-pie-5c49b6.netlify.app"
 
 collections:
   - name: "projecten"
     label: "Projecten"
-    folder: "projecten"
+    folder: "projecten"     # elk item = één bestand in /projecten
     create: true
     slug: "{{slug}}"
-    extension: "md"
-    format: "frontmatter"
+    extension: "md"         # we bewaren als Markdown (veilig & simpel)
     fields:
       - { label: "Titel", name: "title", widget: "string" }
-      - { label: "Omschrijving", name: "body", widget: "markdown" }
-      - { label: "Categorie", name: "categorie", widget: "select", options: ["Tech", "Manifest", "Film", "Maatschappij"] }
-      - { label: "Datum", name: "date", widget: "datetime" }
+      - { label: "Datum", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Samenvatting", name: "summary", widget: "text", required: false }
+      - { label: "Inhoud", name: "body", widget: "markdown" }
