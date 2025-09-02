@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main  # of master, afhankelijk van je repo
+media_folder: "img/uploads" # waar geüploade afbeeldingen komen
+public_folder: "/img/uploads"
+
+collections:
+  - name: "projecten"
+    label: "Projecten"
+    folder: "projecten"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Titel", name: "title", widget: "string" }
+      - { label: "Omschrijving", name: "body", widget: "markdown" }
+      - { label: "Categorie", name: "categorie", widget: "select", options: ["Tech", "Manifest", "Film", "Maatschappij"] }
+      - { label: "Datum", name: "date", widget: "datetime" }
