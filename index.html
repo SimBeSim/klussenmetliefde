@@ -26,8 +26,8 @@
     .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px}
     .card{background:linear-gradient(180deg, var(--panel), #0f1433); border:1px solid #272d58; border-radius:16px; padding:18px; box-shadow:var(--shadow)}
     /* Variaties voor afwisseling */
-    .card.light{background:linear-gradient(180deg, #262e72, #121743); border-color:#3540a0}
-    .card.dark{background:linear-gradient(180deg, #14183b, #0b0f2b); border-color:#22285a}
+    .card.light{background:linear-gradient(180deg, #4a5af2, #2a3ac2); border-color:#6a7cff}
+    .card.dark{background:linear-gradient(180deg, #0f1433, #090d26); border-color:#1b2150}
     .card h3{margin:.2rem 0 .4rem}
     .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
     .btn{background:linear-gradient(180deg, #2a3166, #1a214f); padding:12px 16px; border-radius:12px; border:1px solid #38408b; color:var(--ink); font-weight:600}
@@ -44,6 +44,18 @@
     @media (max-width:900px){.two{grid-template-columns:1fr}}
     .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#0c0f26; border:1px solid #2c2f52; border-radius:8px; padding:2px 6px}
     .note{font-size:14px; color:#a7b2ff; opacity:.9}
+  .social-icons { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; align-items:center }
+    .social-icons a { display:inline-flex; line-height:0; border-radius:10px; padding:2px }
+    .social-icons a svg { width:36px; height:36px; border-radius:8px; transition:transform .2s, box-shadow .2s }
+    .social-icons a:hover svg { transform:scale(1.15) }
+    .social-icons a[title="WhatsApp"]:hover svg{ box-shadow:0 0 10px #25D366 }
+    .social-icons a[title="YouTube"]:hover svg{ box-shadow:0 0 10px #FF0000 }
+    .social-icons a[title="Facebook"]:hover svg{ box-shadow:0 0 10px #1877F2 }
+    .social-icons a[title="X"]:hover svg{ box-shadow:0 0 10px #fff }
+    .social-icons a[title="LinkedIn"]:hover svg{ box-shadow:0 0 10px #0A66C2 }
+    .social-icons a[title="GitHub"]:hover svg{ box-shadow:0 0 10px #9aa }
+    .social-icons a[title="Partyflock"]:hover svg{ box-shadow:0 0 10px #FFD700 }
+    .social-icons a[title="Soundcloud"]:hover svg{ box-shadow:0 0 10px #FF5500 }
   </style>
 </head>
 <body>
@@ -227,51 +239,14 @@
         Earth, Solar System, Milky Way</p>
         <p>Telefoon: +31.6.123.8.14.13</p>
         <div class="social-icons">
-          <a href="https://wa.me/+31612381413" title="WhatsApp">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#25D366" d="M4 24C4 12.95 12.95 4 24 4s20 8.95 20 20-8.95 20-20 20c-3.5 0-6.8-.9-9.7-2.6L4 44l2.6-10.3C5 30.8 4 27.5 4 24z"/>
-              <path fill="#fff" d="M34.3 29.7c-.6-.3-3.5-1.7-4-1.9-.5-.2-.9-.3-1.3.3s-1.5 1.9-1.8 2.3c-.3.4-.7.5-1.3.2-.6-.3-2.5-.9-4.8-3.1-1.8-1.7-3.1-3.7-3.4-4.3-.3-.6 0-1 .3-1.3.3-.3.6-.7.9-1.1.3-.4.4-.7.6-1.1.2-.4.1-.8 0-1.1-.1-.3-1.3-3.2-1.8-4.4-.5-1.2-1-1-1.3-1h-1.1c-.4 0-1.1.2-1.7.8s-2.3 2.3-2.3 5.5 2.4 6.4 2.7 6.8c.3.4 4.8 7.4 11.6 10.1 1.6.7 2.9 1.1 3.9 1.4 1.6.5 3.1.4 4.3.2 1.3-.2 3.5-1.4 4-2.8.5-1.4.5-2.5.4-2.8-.1-.3-.5-.4-1.1-.7z"/>
-            </svg>
-          </a>
-          <a href="https://www.youtube.com/@VoiceOffAss" title="YouTube">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#FF0000" d="M43.6 14.5s-.4-3-1.6-4.3c-1.5-1.6-3.2-1.6-4-1.7C32.6 8 24 8 24 8h-.1s-8.6 0-14 0.5c-.8.1-2.5.1-4 1.7-1.2 1.3-1.6 4.3-1.6 4.3S4 17.8 4 21.1v5.8c0 3.3.4 6.6.4 6.6s.4 3 1.6 4.3c1.5 1.6 3.5 1.6 4.4 1.7 3.2.3 13.6.5 13.6.5s8.6 0 14-0.5c.8-.1 2.5-.1 4-1.7 1.2-1.3 1.6-4.3 1.6-4.3s.4-3 .4-6.6v-5.8c0-3.3-.4-6.6-.4-6.6z"/>
-              <path fill="#fff" d="M20 30l12-7-12-7v14z"/>
-            </svg>
-          </a>
-          <a href="https://facebook.com/user/SimTheNo1" title="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <circle cx="24" cy="24" r="20" fill="#1877F2"/>
-              <path fill="#000" d="M26.5 35v-9h3.1l.5-4.2h-3.6v-2.6c0-1.2.4-2 2.1-2H30V13c-.4-.1-1.7-.2-3.2-.2-3.1 0-5.3 1.9-5.3 5.5v3.5h-3.1V26h3.1v9h5z"/>
-            </svg>
-          </a>
-          <a href="https://x.com/SimBeSim" title="X">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path d="M11 9l13.2 15.5L11 39h5.7l10.5-11.7L37.7 39H44L30.4 23.2 43 9h-5.6L27.8 19.9 17.8 9H11z" fill="#000"/>
-            </svg>
-          </a>
-          <a href="https://www.linkedin.com/in/simbesim/" title="LinkedIn">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#0A66C2" d="M42 4H6c-1.1 0-2 .9-2 2v36c0 1.1.9 2 2 2h36c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
-              <path fill="#fff" d="M12 19h6v17h-6V19zm3-8c1.9 0 3.1 1.3 3.1 3s-1.2 3-3.1 3c-1.8 0-3-1.3-3-3s1.2-3 3-3zm7 8h5.7v2.3h.1c.8-1.5 2.7-3 5.6-3 6 0 7.1 4 7.1 9.2V36h-6V28c0-2-.1-4.6-3-4.6-3 0-3.4 2.2-3.4 4.4V36h-6V19z"/>
-            </svg>
-          </a>
-          <a href="https://github.com/SimBeSim" title="GitHub">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#181717" d="M24 .6C10.8.6.1 11.3.1 24.6c0 10.6 6.9 19.6 16.5 22.8 1.2.2 1.6-.5 1.6-1.2v-4.5c-6.7 1.5-8.1-3.3-8.1-3.3-1-2.6-2.5-3.3-2.5-3.3-2-1.4.2-1.4.2-1.4 2.2.2 3.4 2.3 3.4 2.3 2 3.4 5.3 2.4 6.6 1.8.2-1.5.8-2.4 1.4-3-5.4-.6-11-2.7-11-12 0-2.6.9-4.7 2.3-6.4-.2-.6-1-3 .2-6.2 0 0 2-.6 6.5 2.3 1.9-.5 3.9-.8 5.9-.8 2 0 4 .3 5.9.8 4.5-2.9 6.5-2.3 6.5-2.3 1.2 3.2.4 5.6.2 6.2 1.4 1.7 2.3 3.8 2.3 6.4 0 9.3-5.7 11.4-11.1 12 .8.7 1.5 2.1 1.5 4.3v6.4c0 .7.4 1.4 1.6 1.2 9.6-3.2 16.5-12.2 16.5-22.8C47.9 11.3 37.2.6 24 .6z"/>
-            </svg>
-          </a>
-          <a href="https://partyflock.nl/user/762756:SimBeSim-aka-SimTheNo1" title="Partyflock">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <circle cx="24" cy="24" r="20" fill="#FFD700"/>
-              <path d="M14 30l10-20 10 20z" fill="#00008B"/>
-            </svg>
-          </a>
-          <a href="https://soundcloud.com/simbesim" title="Soundcloud">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#FF5500" d="M24 16c-3.3 0-6 2.7-6 6v10h20c2.8 0 5-2.2 5-5s-2.2-5-5-5c-.5 0-1 .1-1.5.2C41 17.3 35.1 12 28 12c-1.5 0-2.9.3-4.1.8-.9-.5-2-.8-3.1-.8z"/>
-            </svg>
-          </a>
+          <a href="https://wa.me/+31612381413" title="WhatsApp"><img src="img/whatsapp.png" width="36" height="36" alt="WhatsApp"></a>
+          <a href="https://www.youtube.com/@VoiceOffAss" title="YouTube"><img src="img/youtube.png" width="36" height="36" alt="YouTube"></a>
+          <a href="https://facebook.com/user/SimTheNo1" title="Facebook"><img src="img/facebook.png" width="36" height="36" alt="Facebook"></a>
+          <a href="https://x.com/SimBeSim" title="X"><img src="img/x.png" width="36" height="36" alt="X"></a>
+          <a href="https://www.linkedin.com/in/simbesim/" title="LinkedIn"><img src="img/linkedin.png" width="36" height="36" alt="LinkedIn"></a>
+          <a href="https://github.com/SimBeSim" title="GitHub"><img src="img/github.png" width="36" height="36" alt="GitHub"></a>
+          <a href="https://partyflock.nl/user/762756:SimBeSim-aka-SimTheNo1" title="Partyflock"><img src="img/partyflock.png" width="36" height="36" alt="Partyflock"></a>
+          <a href="https://soundcloud.com/simbesim" title="Soundcloud"><img src="img/soundcloud.png" width="36" height="36" alt="Soundcloud"></a>
         </div>
         <p class="note">We publiceren niets privé zonder expliciete toestemming.</p>
       </div>
