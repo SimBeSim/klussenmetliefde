@@ -1,14 +1,17 @@
 backend:
-  name: git-gateway          # Netlify Identity + Git Gateway
-  branch: main               # pas aan als jouw default anders is
+  name: github
+  repo: SimBeSim/klussenmetliefde   # <user>/<repo>
+  branch: main
 
-# Concept -> Review -> Publiceren (met 'Unpublished entries' in CMS)
+# Als we de OAuth-provider (serverless functie) aanzetten, voegen we dit toe:
+# base_url: "https://<jouw-site>.netlify.app"
+# auth_endpoint: "/api/auth"
+
 publish_mode: editorial_workflow
 
-media_folder: "img/uploads"  # waar uploads in de repo komen
-public_folder: "/img/uploads" # hoe ze publiek bereikbaar zijn
+media_folder: "img/uploads"
+public_folder: "/img/uploads"
 
-# Slug-instellingen: mooie URL's zonder rare tekens
 slug:
   encoding: "unicode"
   clean_accents: true
@@ -16,38 +19,20 @@ slug:
 
 site_url: "https://inquisitive-pie-5c49b6.netlify.app"
 
-# Optioneel: alleen uitgenodigde users mogen inloggen (regel je in Netlify Identity)
-# i18n etc. kun je later toevoegen
-
 collections:
   - name: "projecten"
     label: "Projecten"
-    label_singular: "Project"
-    folder: "projecten"        # elk item wordt een .md bestand in /projecten
-    create: true               # maakt nieuwe bestanden aan
-    delete: true
-    format: "frontmatter"
+    folder: "projecten"
+    create: true
     extension: "md"
+    format: "frontmatter"
     identifier_field: "title"
-    slug: "{{slug}}"           # gebruikt Titel -> slug
-    sort:
-      field: "date"
-      direction: "desc"
+    slug: "{{slug}}"
+    sort: { field: "date", direction: "desc" }
     fields:
       - { label: "Titel", name: "title", widget: "string" }
       - { label: "Datum", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
-      - { label: "Samenvatting", name: "summary", widget: "text", required: false, hint: "Korte intro (kaartweergave/SEO)" }
-      - { label: "Categorie", name: "categorie", widget: "select", options: ["Tech", "Manifest", "Film", "Maatschappij", "Boek"], multiple: false, required: false }
-      - { label: "Cover", name: "cover", widget: "image", required: false, allow_multiple: false, hint: "Optioneel: kleine thumbnail/visual" }
-      - { label: "Inhoud", name: "body", widget: "markdown", hint: "Gebruik Markdown. Koppen (###), lijstjes, links, afbeeldingen." }
-
-  # Voorbeeld extra collectie (later inschakelen als je wilt):
-  # - name: "nieuws"
-  #   label: "Nieuws"
-  #   folder: "nieuws"
-  #   create: true
-  #   extension: "md"
-  #   fields:
-  #     - { label: "Titel", name: "title", widget: "string" }
-  #     - { label: "Datum", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
-  #     - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Samenvatting", name: "summary", widget: "text", required: false }
+      - { label: "Categorie", name: "categorie", widget: "select", options: ["Tech","Manifest","Film","Maatschappij","Boek"], required: false }
+      - { label: "Cover", name: "cover", widget: "image", required: false }
+      - { label: "Inhoud", name: "body", widget: "markdown" }
