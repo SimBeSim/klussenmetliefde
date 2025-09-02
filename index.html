@@ -26,8 +26,8 @@
     .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px}
     .card{background:linear-gradient(180deg, var(--panel), #0f1433); border:1px solid #272d58; border-radius:16px; padding:18px; box-shadow:var(--shadow)}
     /* Variaties voor afwisseling */
-    .card.light{background:linear-gradient(180deg, #4a5af2, #2a3ac2); border-color:#6a7cff}
-    .card.dark{background:linear-gradient(180deg, #0f1433, #090d26); border-color:#1b2150}
+    .card.light{background:linear-gradient(180deg, #4a5af2, #2a3ac2); border-color:#6a7cff} /* fallback */
+    .card.dark{background:linear-gradient(180deg, #0f1433, #090d26); border-color:#1b2150} /* fallback */
     .card h3{margin:.2rem 0 .4rem}
     .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
     .btn{background:linear-gradient(180deg, #2a3166, #1a214f); padding:12px 16px; border-radius:12px; border:1px solid #38408b; color:var(--ink); font-weight:600}
@@ -46,16 +46,30 @@
     .note{font-size:14px; color:#a7b2ff; opacity:.9}
   .social-icons { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; align-items:center }
     .social-icons a { display:inline-flex; line-height:0; border-radius:10px; padding:2px }
-    .social-icons a svg { width:36px; height:36px; border-radius:8px; transition:transform .2s, box-shadow .2s }
-    .social-icons a:hover svg { transform:scale(1.15) }
-    .social-icons a[title="WhatsApp"]:hover svg{ box-shadow:0 0 10px #25D366 }
-    .social-icons a[title="YouTube"]:hover svg{ box-shadow:0 0 10px #FF0000 }
-    .social-icons a[title="Facebook"]:hover svg{ box-shadow:0 0 10px #1877F2 }
-    .social-icons a[title="X"]:hover svg{ box-shadow:0 0 10px #fff }
-    .social-icons a[title="LinkedIn"]:hover svg{ box-shadow:0 0 10px #0A66C2 }
-    .social-icons a[title="GitHub"]:hover svg{ box-shadow:0 0 10px #9aa }
-    .social-icons a[title="Partyflock"]:hover svg{ box-shadow:0 0 10px #FFD700 }
-    .social-icons a[title="Soundcloud"]:hover svg{ box-shadow:0 0 10px #FF5500 }
+    .social-icons a img { width:36px; height:36px; border-radius:8px; transition:transform .2s, box-shadow .2s }
+    .social-icons a:hover img { transform:scale(1.15) }
+    .social-icons a[title="WhatsApp"]:hover img{ box-shadow:0 0 10px #25D366 }
+    .social-icons a[title="YouTube"]:hover img{ box-shadow:0 0 10px #FF0000 }
+    .social-icons a[title="Facebook"]:hover img{ box-shadow:0 0 10px #1877F2 }
+    .social-icons a[title="X"]:hover img{ box-shadow:0 0 10px #fff }
+    .social-icons a[title="LinkedIn"]:hover img{ box-shadow:0 0 10px #0A66C2 }
+    .social-icons a[title="GitHub"]:hover img{ box-shadow:0 0 10px #9aa }
+    .social-icons a[title="Partyflock"]:hover img{ box-shadow:0 0 10px #FFD700 }
+    .social-icons a[title="Soundcloud"]:hover img{ box-shadow:0 0 10px #FF5500 }
+  .card.blue{background:linear-gradient(180deg, #4285F4, #2a56c6); border-color:#4285F4}
+    .card.red{background:linear-gradient(180deg, #EA4335, #a72d25); border-color:#EA4335}
+    .card.yellow{background:linear-gradient(180deg, #FBBC05, #c99804); border-color:#FBBC05; color:#222}
+    .card.green{background:linear-gradient(180deg, #34A853, #207a36); border-color:#34A853}
+  .card.g-blue{background:linear-gradient(180deg, #4285F4, #2a61cf); border-color:#6aa5ff}
+    .card.g-red{background:linear-gradient(180deg, #EA4335, #b12e26); border-color:#ff8a7f}
+    .card.g-yellow{background:linear-gradient(180deg, #FBBC05, #c99400); border-color:#ffe07a}
+    .card.g-green{background:linear-gradient(180deg, #34A853, #1f6e36); border-color:#6fd69a}
+
+    /* Responsive social icons */
+    @media (max-width: 600px){
+      .social-icons img{ width:28px; height:28px }
+      .social-icons{ gap:10px }
+    }
   </style>
 </head>
 <body>
@@ -258,15 +272,19 @@
   </footer>
 
   <script>
-    // kleine progressive enhancement + om-en-om kaartstijlen
+    // jaar in footer + CTA-knoppen
     document.getElementById('yr').textContent = new Date().getFullYear();
     document.getElementById('btn-news')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
     document.getElementById('btn-sponsor')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
 
-    // Wissel licht/donker kaarten in Projecten (om en om)
+    // Projecten-kaarten in Google-kleuren: blauw, rood, geel, groen (herhalend)
     (function(){
+      const seq = ['g-blue','g-red','g-yellow','g-green'];
       const cards = document.querySelectorAll('#projects-grid .card');
-      cards.forEach((c,i)=> c.classList.add(i % 2 === 0 ? 'light' : 'dark'));
+      cards.forEach((c,i)=>{
+        c.classList.remove('light','dark','g-blue','g-red','g-yellow','g-green');
+        c.classList.add(seq[i % seq.length]);
+      });
     })();
   </script>
 </body>
