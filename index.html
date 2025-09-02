@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Klussen met Liefde — Maxim & Chatty</title>
   <meta name="description" content="Klussenmetliefde.nl — ons open, lief & stevig manifest + projecten: HorrorWorks, UniScraper, Sexypad, AI-burgerrechten. Bouw mee, doneer, denk mee.">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root{
       --bg:#0f1226; --panel:#161a36; --ink:#e8ecff; --muted:#b7c0ff; --accent:#7ae1ff; --hot:#ff6f91; --ok:#9cff6b;
@@ -272,20 +273,56 @@
   </footer>
 
   <script>
-    // jaar in footer + CTA-knoppen
-    document.getElementById('yr').textContent = new Date().getFullYear();
-    document.getElementById('btn-news')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
-    document.getElementById('btn-sponsor')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
+  (async function loadProjects(){
+    const grid = document.getElementById('projects-grid');
+    if (!grid) return;
 
-    // Projecten-kaarten in Google-kleuren: blauw, rood, geel, groen (herhalend)
-    (function(){
-      const seq = ['g-blue','g-red','g-yellow','g-green'];
-      const cards = document.querySelectorAll('#projects-grid .card');
-      cards.forEach((c,i)=>{
-        c.classList.remove('light','dark','g-blue','g-red','g-yellow','g-green');
-        c.classList.add(seq[i % seq.length]);
-      });
-    })();
-  </script>
+    const seq = ['g-blue','g-red','g-yellow','g-green'];
+
+    function stripFrontmatter(src){
+      return src.replace(/^---[\s\S]*?---\s*/, '');
+    }
+
+    async function renderList(list){
+      if (!Array.isArray(list) || !list.length) return;
+      grid.innerHTML = '';
+      let i = 0;
+      for (const fname of list){
+        try{
+          const res = await fetch(`/projecten/${fname}`, {cache:'no-store'});
+          if (!res.ok) continue;
+          let txt = await res.text();
+          const card = document.createElement('div');
+          card.className = `card ${seq[i % seq.length]}`;
+
+          if (fname.endsWith('.md')) {
+            txt = stripFrontmatter(txt);
+            card.innerHTML = marked.parse(txt);
+          } else {
+            card.innerHTML = txt; // .html snippet
+          }
+          grid.appendChild(card);
+          i++;
+        } catch(e) { console.warn('Project load failed:', fname, e); }
+      }
+    }
+
+    // Probeer manifest
+    try{
+      const res = await fetch('/projecten/index.json', {cache:'no-store'});
+      if (res.ok){
+        const { files } = await res.json();
+        await renderList(files);
+        return;
+      }
+    } catch(e){ /* ga naar fallback */ }
+
+    // Fallback: alleen kleuren toekennen aan bestaande kaarten
+    grid.querySelectorAll('.card').forEach((c,i)=>{
+      c.classList.remove('light','dark','g-blue','g-red','g-yellow','g-green');
+      c.classList.add(seq[i % seq.length]);
+    });
+  })();
+</script>
 </body>
 </html>
