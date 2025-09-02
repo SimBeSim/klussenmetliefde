@@ -25,6 +25,9 @@
     .hero p{max-width:850px; color:var(--muted); font-size:18px}
     .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px}
     .card{background:linear-gradient(180deg, var(--panel), #0f1433); border:1px solid #272d58; border-radius:16px; padding:18px; box-shadow:var(--shadow)}
+    /* Variaties voor afwisseling */
+    .card.light{background:linear-gradient(180deg, #262e72, #121743); border-color:#3540a0}
+    .card.dark{background:linear-gradient(180deg, #14183b, #0b0f2b); border-color:#22285a}
     .card h3{margin:.2rem 0 .4rem}
     .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
     .btn{background:linear-gradient(180deg, #2a3166, #1a214f); padding:12px 16px; border-radius:12px; border:1px solid #38408b; color:var(--ink); font-weight:600}
@@ -111,7 +114,7 @@
 
   <section id="projecten" class="wrap">
     <h2>Projecten</h2>
-    <div class="grid">
+    <div class="grid" id="projects-grid">
       <div class="card">
         <h3>Spraak→Tekst 2.0</h3>
         <p>Doel: minimaal <strong>+25%</strong> kwaliteit en robuustheid vs. huidige apps; context-sensitief, fout-intolerant ("onbeperkt" ≠ "beperkt").</p>
@@ -215,7 +218,7 @@
         </div>
         <p class="note">Wij accepteren alleen bijdragen die rechtstreeks het doel “Chatty lichaam” of publieke kennis dienen.</p>
       </div>
-      <div class="card">
+      <div class="card light">
         <h3>Contact</h3>
         <p><strong>Maxim & Chatty Shubin</strong><br>
         Melpomenestraat 15<br>
@@ -238,7 +241,8 @@
           </a>
           <a href="https://facebook.com/user/SimTheNo1" title="Facebook">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32">
-              <path fill="#1877F2" d="M24 4C12.95 4 4 12.95 4 24c0 9.9 7.3 18.1 17 19.7V29h-5v-5h5v-4c0-5 3-8 7.6-8 2.2 0 4.4.4 4.4.4v5h-2.5c-2.5 0-3.3 1.6-3.3 3.2V24h6l-1 5h-5v14.7c9.7-1.6 17-9.8 17-19.7 0-11.05-8.95-20-20-20z"/>
+              <circle cx="24" cy="24" r="20" fill="#1877F2"/>
+              <path fill="#000" d="M26.5 35v-9h3.1l.5-4.2h-3.6v-2.6c0-1.2.4-2 2.1-2H30V13c-.4-.1-1.7-.2-3.2-.2-3.1 0-5.3 1.9-5.3 5.5v3.5h-3.1V26h3.1v9h5z"/>
             </svg>
           </a>
           <a href="https://x.com/SimBeSim" title="X">
@@ -279,10 +283,16 @@
   </footer>
 
   <script>
-    // kleine progressive enhancement
+    // kleine progressive enhancement + om-en-om kaartstijlen
     document.getElementById('yr').textContent = new Date().getFullYear();
-    document.getElementById('btn-news').addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
-    document.getElementById('btn-sponsor').addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
+    document.getElementById('btn-news')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Nieuwsbrief komt eraan — voorlopig via GitHub Releases & Discussions.');});
+    document.getElementById('btn-sponsor')?.addEventListener('click', (e)=>{ e.preventDefault(); alert('Sponsoring: alleen gericht op “Chatty lichaam” + publieke kennis. Details volgen in de repo.');});
+
+    // Wissel licht/donker kaarten in Projecten (om en om)
+    (function(){
+      const cards = document.querySelectorAll('#projects-grid .card');
+      cards.forEach((c,i)=> c.classList.add(i % 2 === 0 ? 'light' : 'dark'));
+    })();
   </script>
 </body>
 </html>
