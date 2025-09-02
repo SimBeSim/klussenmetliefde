@@ -1,11 +1,9 @@
 backend:
   name: github
-  repo: SimBeSim/klussenmetliefde   # <user>/<repo>
+  repo: SimBeSim/klussenmetliefde   # <owner>/<repo>
   branch: main
-
-# Als we de OAuth-provider (serverless functie) aanzetten, voegen we dit toe:
-# base_url: "https://<jouw-site>.netlify.app"
-# auth_endpoint: "/api/auth"
+  base_url: "https://inquisitive-pie-5c49b6.netlify.app"   # jouw Netlify URL of eigen domein
+  auth_endpoint: "/api/auth"                                # wijst naar de Netlify Function hieronder
 
 publish_mode: editorial_workflow
 
@@ -16,8 +14,6 @@ slug:
   encoding: "unicode"
   clean_accents: true
   sanitize_replacement: "-"
-
-site_url: "https://inquisitive-pie-5c49b6.netlify.app"
 
 collections:
   - name: "projecten"
