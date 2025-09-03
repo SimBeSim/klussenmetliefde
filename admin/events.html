@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KML — Events Dashboard</title>
+  <style>
+    body{font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; margin:20px; color:#eef}
+    .wrap{max-width:1000px; margin:0 auto}
+    .panel{background:#151a36; border:1px solid #2a2f63; border-radius:14px; padding:16px; margin-bottom:18px}
+    h1,h2{margin:.2rem 0 .6rem}
+    table{width:100%; border-collapse:collapse; font-size:14px}
+    th,td{padding:8px 10px; border-bottom:1px solid #28305f}
+    th{text-align:left; color:#9fb1ff}
+    .muted{opacity:.75}
+    input,button{font:inherit; padding:8px 10px; border-radius:8px; border:1px solid #39407f; background:#0f1430; color:#eef}
+    button{cursor:pointer}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+    @media (max-width:800px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Klussen met Liefde — Events</h1>
+  <div class="panel">
+    <label>Dag (YYYY-MM-DD): <input id="day" /></label>
+    <button id="load">Laden</button>
+    <span id="meta" class="muted"></span>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Frames (views & gemiddelde kijktijd)</h2>
+      <table id="byFrame"><thead><tr>
+        <th>Frame</th><th>Views</th><th>Avg dwell (s)</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="panel">
+      <h2>Laatste events</h2>
+      <table id="last"><thead><tr>
+        <th>Tijd</th><th>Event</th><th>Data</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script>
+async function fetchEvents(day){
+  const res = await fetch(`/.netlify/functions/events?day=${encodeURIComponent(day)}`);
+  if(!res.ok) throw new Error('Kan events niet ophalen');
+  return res.json();
+}
+function fmtS(ms){ return (ms/1000).toFixed(1); }
+
+function render(data){
+  const evs = data.events || [];
+  document.getElementById('meta').textContent = `Loaded ${evs.length} events for ${data.day}`;
+
+  // Agg per frame
+  const dwell = new Map(); // frame -> {sum, n}
+  const views = new Map(); // frame -> count (frame_ready)
+  evs.forEach(e=>{
+    if(e.ev === 'frame_dwell' && e.data && typeof e.data.ms === 'number'){
+      const f = e.data.frame;
+      const cur = dwell.get(f) || {sum:0, n:0};
+      cur.sum += e.data.ms; cur.n++;
+      dwell.set(f, cur);
+    }
+    if(e.ev === 'frame_ready' && e.data){
+      const f = e.data.frame;
+      views.set(f, (views.get(f)||0)+1);
+    }
+  });
+
+  // Tabel per frame
+  const tbf = document.querySelector('#byFrame tbody');
+  tbf.innerHTML = '';
+  const frames = Array.from(new Set([...views.keys(), ...dwell.keys()])).sort((a,b)=>a-b);
+  frames.forEach(f=>{
+    const v = views.get(f)||0;
+    const d = dwell.get(f)||{sum:0,n:0};
+    const avg = d.n ? fmtS(d.sum / d.n) : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>frame ${f+1}</td><td>${v}</td><td>${avg}</td>`;
+    tbf.appendChild(tr);
+  });
+
+  // Laatste events
+  const tbl = document.querySelector('#last tbody');
+  tbl.innerHTML = '';
+  evs.slice(-20).reverse().forEach(e=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e._ts?.slice(11,19) || ''}</td><td>${e.ev}</td>
+                    <td class="muted">${escapeHtml(JSON.stringify(e.data))}</td>`;
+    tbl.appendChild(tr);
+  });
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+
+document.getElementById('load').addEventListener('click', async ()=>{
+  const day = document.getElementById('day').value.trim() || new Date().toISOString().slice(0,10);
+  try{ const data = await fetchEvents(day); render(data); }
+  catch(e){ alert(e.message); }
+});
+
+// auto-load vandaag
+document.getElementById('day').value = new Date().toISOString().slice(0,10);
+document.getElementById('load').click();
+</script>
+</body>
+</html>
