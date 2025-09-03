@@ -1,45 +1,23 @@
 // netlify/functions/auth.js
-// Gebruik expliciet de WHATWG URL-klasse uit Node, zodat we niets overschrijven.
-import { URL as WhatwgURL } from 'node:url';
+// ESM (Netlify Functions) — handmatige GitHub OAuth voor Decap/Netlify CMS
 
 export async function handler(event) {
-  const {
-    GITHUB_CLIENT_ID,
-    GITHUB_CLIENT_SECRET,
-    URL: SITE_URL,              // <-- hernoem env var URL naar SITE_URL
-    DEPLOY_PRIME_URL,
-    DEPLOY_URL,                 // soms handig als fallback
-  } = process.env;
+  // BELANGRIJK: niet "URL" uit process.env halen, dat overschrijft de globale URL constructor!
+  const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+  const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+  const siteUrl = process.env.URL;                 // Netlify productie URL (optioneel)
+  const previewUrl = process.env.DEPLOY_PRIME_URL; // Netlify preview URL (optioneel)
 
-  // Bepaal een betrouwbare origin voor redirects (productie/preview/locaal)
-  let origin = '';
-  try {
-    if (SITE_URL) {
-      origin = new WhatwgURL(SITE_URL).origin;
-    } else if (DEPLOY_PRIME_URL) {
-      origin = new WhatwgURL(DEPLOY_PRIME_URL).origin;
-    } else if (DEPLOY_URL) {
-      origin = new WhatwgURL(DEPLOY_URL).origin;
-    } else if (event?.headers?.host) {
-      // let op: bij http lokaliteit eventueel http:// gebruiken
-      origin = `https://${event.headers.host}`;
-    }
-  } catch (e) {
-    // laatste redmiddel: niets doen, dan faalt de flow netjes bij redirect
-  }
+  // Bepaal je origin (https://...):
+  const origin =
+    (siteUrl ? new globalThis.URL(siteUrl).origin : null) ||
+    (previewUrl ? new globalThis.URL(previewUrl).origin : null) ||
+    (event.headers && event.headers.host ? `https://${event.headers.host}` : "");
 
-  // Welke subroute?  '/api/auth' vs '/api/auth/callback'
-  const pathEnd = (event.path || '').split('/').slice(-1)[0]; // 'auth' of 'callback'
+  const pathEnd = (event.path || "").split("/").slice(-1)[0]; // 'auth' of 'callback'
 
-  // 1) START OAUTH -> redirect naar GitHub
-  if (pathEnd !== 'callback') {
-    if (!origin) {
-      return { statusCode: 500, body: 'Cannot determine site origin for OAuth redirect.' };
-    }
-    if (!GITHUB_CLIENT_ID) {
-      return { statusCode: 500, body: 'Missing GITHUB_CLIENT_ID' };
-    }
-
+  // 1) START OAUTH → redirect naar GitHub
+  if (pathEnd !== "callback") {
     const redirect_uri = `${origin}/api/auth/callback`;
     const authURL =
       `https://github.com/login/oauth/authorize` +
@@ -49,65 +27,63 @@ export async function handler(event) {
 
     return {
       statusCode: 302,
-      headers: { Location: authURL, 'Cache-Control': 'no-store' },
-      body: '',
+      headers: { Location: authURL, "Cache-Control": "no-store" },
+      body: ""
     };
   }
 
-  // 2) CALLBACK -> code -> access_token -> postMessage terug naar opener
+  // 2) CALLBACK → code → access_token → postMessage terug naar opener (Decap)
   try {
-    // Netlify kan rawQuery óf rawQueryString leveren; val evt. op queryStringParameters terug
-    const raw =
-      event.rawQueryString ??
-      event.rawQuery ??
-      new URLSearchParams(event.queryStringParameters || {}).toString();
+    const code = new URLSearchParams(event.rawQuery || "").get("code");
+    if (!code) return { statusCode: 400, body: "Missing code" };
 
-    const code = new URLSearchParams(raw).get('code');
-    if (!code) return { statusCode: 400, body: 'Missing code' };
-
-    if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
-      return { statusCode: 500, body: 'Missing GitHub OAuth env (client id/secret)' };
-    }
-
-    const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({
         client_id: GITHUB_CLIENT_ID,
         client_secret: GITHUB_CLIENT_SECRET,
-        code,
-      }),
+        code
+      })
     });
-
     const data = await tokenRes.json();
 
     if (!data.access_token) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'text/plain' },
-        body: `OAuth exchange failed: ${JSON.stringify(data)}`,
+        headers: { "Content-Type": "text/plain" },
+        body: `OAuth exchange failed: ${JSON.stringify(data)}`
       };
     }
 
-    // HTML die token terugstuurt zoals Decap verwacht en het venster sluit
     const html = `<!doctype html>
 <meta charset="utf-8">
 <title>Auth OK</title>
+<style>
+  body{font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:20px;color:#223}
+</style>
+<body>Je kunt dit venster sluiten…</body>
 <script>
   (function () {
     var token = ${JSON.stringify(data.access_token)};
-    var msg = 'authorization:github:success:' + token;
-    if (window.opener) {
-      window.opener.postMessage(msg, '*');
-      window.close();
-    } else {
-      document.body.textContent = 'Received token';
+    var origin = window.location.origin;
+
+    function sendAll() {
+      try { window.opener && window.opener.postMessage('authorization:github:success:' + token, origin); } catch(e){}
+      try {
+        window.opener && window.opener.postMessage({
+          type:'authorization', provider:'github', status:'success', token: token
+        }, origin);
+      } catch(e){}
     }
+    sendAll();
+    setTimeout(sendAll, 50);
+    setTimeout(function(){ try{ window.close(); }catch(e){} }, 150);
   })();
 </script>`;
 
-    return { statusCode: 200, headers: { 'Content-Type': 'text/html' }, body: html };
+    return { statusCode: 200, headers: { "Content-Type": "text/html" }, body: html };
   } catch (err) {
-    return { statusCode: 500, body: 'OAuth error' };
+    return { statusCode: 500, body: "OAuth error" };
   }
 }
