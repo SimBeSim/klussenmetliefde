@@ -2,8 +2,9 @@ backend:
   name: github
   repo: SimBeSim/klussenmetliefde
   branch: main
-  base_url: /api        # <— alleen het pad
-  auth_endpoint: auth   # <— endpoint naam
+  base_url: "https://inquisitive-pie-5c49b6.netlify.app"
+  auth_endpoint: "/api/auth"
+
 
 
 publish_mode: editorial_workflow
