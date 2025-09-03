@@ -33,53 +33,73 @@
     @media (min-width:480px){ .btn--prev,.btn--next{transform:scale(.9)} }
   </style>
   <script>
-  // jouw Apps Script endpoint
-  window.TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
-</script>
-<script>
-(function () {
-  const URL = window.TRACK_URL;
+  // Your Apps Script endpoint:
+  const TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
 
-  function send(payload){
+  // --- helpers ---
+  function sendBeaconSafe(payload) {
     try {
-      // 1) voorkeur: sendBeacon (verlaat-pagina is betrouwbaar)
-      if (navigator.sendBeacon) {
-        const blob = new Blob([JSON.stringify(payload)], {type: "application/json"});
-        navigator.sendBeacon(URL, blob);
-        return;
-      }
-      // 2) fallback: no-cors POST
-      fetch(URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-      });
-    } catch(e) { /* stil falen */ }
+      if (!navigator.sendBeacon) return false;
+      // Use text/plain to avoid preflight
+      const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
+      return navigator.sendBeacon(TRACK_URL, blob);
+    } catch { return false; }
   }
 
-  // Publieke helper voor jouw code
+  function fetchNoCors(payload) {
+    try {
+      // text/plain + no-cors => no preflight
+      fetch(TRACK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify(payload)
+      });
+    } catch {}
+  }
+
+  function pixelPing(payload) {
+    try {
+      const q = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+      const img = new Image();
+      // doGet handler will catch "p" param
+      img.src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
+      // don’t need to append to DOM
+    } catch {}
+  }
+
+  function send(payload) {
+    // Prefer beacon (reliable on unload)
+    if (sendBeaconSafe(payload)) return;
+    // Fallback: no-cors POST
+    fetchNoCors(payload);
+    // Last resort: GET pixel
+    pixelPing(payload);
+  }
+
+  // Public API
   window.trackEvent = function(event, extra = {}) {
-    send({
+    const data = {
       ts: new Date().toISOString(),
       path: location.pathname + location.search,
-      ref: document.referrer || null,
+      ref: document.referrer || "",
       ua: navigator.userAgent,
-      w: innerWidth, h: innerHeight,
+      vp: `${innerWidth}x${innerHeight}`,
       event,
       ...extra
-    });
+    };
+    send(data);
   };
 
-  // autom. sessie start + einde
-  window.addEventListener("DOMContentLoaded", () => trackEvent("session_start"));
-  window.addEventListener("visibilitychange", () => {
+  // Auto session start/end
+  addEventListener("DOMContentLoaded", () => trackEvent("session_start"));
+  addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      trackEvent("session_end", {dur_ms: Math.round(performance.now())});
+      trackEvent("session_end", { dur_ms: Math.round(performance.now()) });
     }
   });
-})();
 </script>
+
 
 </head>
 <body>
