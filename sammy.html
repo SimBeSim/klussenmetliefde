@@ -14,9 +14,8 @@
     .wrap{max-width:880px; margin:0 auto; padding:18px}
     .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid #2a2f5e; border-radius:22px; box-shadow:var(--shadow); padding:22px}
 
-    /* Header onder elkaar */
+    /* Header */
     .card-head{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:12px}
-    /* Titel ~30% kleiner */
     .ttl{font-weight:800; font-size:1.1rem; letter-spacing:.2px}
 
     .progress{display:flex; gap:10px; flex-wrap:wrap}
@@ -27,11 +26,14 @@
     .story{padding-top:6px}
     .story-text{font-size:clamp(1.05rem, 2.2vw, 1.65rem); line-height:1.45; min-height:38vh}
 
-    /* Typewriter karakters */
+    /* Typewriter */
+    .word{display:inline-block; white-space:nowrap}      /* geen afbreken binnen woorden */
     .char{display:inline-block; opacity:0; filter:blur(3px); transform:translateY(2px)}
     .char.revealed{opacity:1; filter:blur(0); transform:none; transition:opacity .18s ease, filter .18s ease, transform .18s ease}
+    .space{display:inline; white-space:pre; opacity:0}   /* spatie doet mee in reveal */
+    .space.revealed{opacity:1; transition:opacity .1s linear}
 
-    /* Knoppen 30% kleiner */
+    /* Knoppen (30% kleiner) */
     .btnbar{display:flex; gap:10px; margin-top:16px}
     .btnbar[hidden]{display:none}
     .btn{
@@ -50,7 +52,7 @@
       .ttl{font-size:1rem}
     }
     @media (prefers-reduced-motion: reduce){
-      .char{transition:none}
+      .char,.space{transition:none}
     }
   </style>
 </head>
@@ -127,35 +129,46 @@
       elNext.classList.toggle('pulse', canGoNext);
     }
 
+    // === NIEUW: woorden groeperen, breek alleen op spaties ===
     function revealText(str){
-      // verberg knoppen tijdens typen
-      btnBar.hidden = true;
-
+      btnBar.hidden = true;             // verberg knoppen tijdens typen
       elText.innerHTML = '';
-      const frag = document.createDocumentFragment();
 
-      for (const ch of str){
-        const s = document.createElement('span');
-        s.className = 'char';
-        if (ch === ' ') {
-          // spatie als &nbsp; zodat hij zichtbaar blijft in per-char spans
-          s.innerHTML = '&nbsp;';
+      const frag = document.createDocumentFragment();
+      const tokens = str.match(/\S+|\s+/g) || []; // woorden of whitespace
+
+      for (const t of tokens){
+        if (/^\s+$/.test(t)){
+          // spatie/whitespace als apart element (mag afbreken)
+          const sp = document.createElement('span');
+          sp.className = 'space';
+          sp.textContent = ' ';
+          frag.appendChild(sp);
         } else {
-          s.textContent = ch;
+          // woord: niet afbreken binnen woord
+          const w = document.createElement('span');
+          w.className = 'word';
+          for (const ch of t){
+            const s = document.createElement('span');
+            s.className = 'char';
+            s.textContent = ch;
+            w.appendChild(s);
+          }
+          frag.appendChild(w);
         }
-        frag.appendChild(s);
       }
       elText.appendChild(frag);
 
       const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const nodes = elText.querySelectorAll('.char, .space');
+
       if (noMotion){
-        [...elText.children].forEach(n => n.classList.add('revealed'));
+        nodes.forEach(n => n.classList.add('revealed'));
         return Promise.resolve();
       }
 
       playing = true;
       return new Promise(resolve=>{
-        const nodes = elText.children;
         let i = 0;
         (function step(){
           if (i < nodes.length){
