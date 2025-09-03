@@ -3,231 +3,229 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lieve Samanta — geanimeerde brief</title>
+  <title>AniFunny brief</title>
   <meta name="description" content="Een geanimeerde brief gericht aan Samanta">
   <style>
     :root{
-      --bg:#0f1226; --panel:#161a36; --panel2:#121634; --ink:#e8ecff; --muted:#b7c0ff;
-      --accent:#7ae1ff; --shadow:0 12px 30px rgba(0,0,0,.35);
+      --bg:#0f1226; --panel:#161a36; --ink:#e8ecff; --muted:#b7c0ff; --accent:#7ae1ff;
+      --ok:#34A853; --ok2:#1d7a3e; --shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Fira Sans','Helvetica Neue',Arial,sans-serif}
-    .wrap{max-width:880px; margin:0 auto; padding:18px}
-    .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid #2a2f5e; border-radius:22px; box-shadow:var(--shadow); padding:22px}
-
-    /* Header */
-    .card-head{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:12px}
-    .ttl{font-weight:800; font-size:1.1rem; letter-spacing:.2px}
-
-    .progress{display:flex; gap:10px; flex-wrap:wrap}
-    .dot{width:12px; height:12px; border-radius:50%; background:#6e82ff; opacity:.35; transition:transform .15s, opacity .2s}
-    .dot.unlocked{opacity:.85; cursor:pointer}
-    .dot.current{outline:2px solid var(--accent); outline-offset:2px; transform:scale(1.1)}
-
-    .story{padding-top:6px}
-    .story-text{font-size:clamp(1.05rem, 2.2vw, 1.65rem); line-height:1.45; min-height:38vh}
-
-    /* Typewriter */
-    .word{display:inline-block; white-space:nowrap}      /* geen afbreken binnen woorden */
-    .char{display:inline-block; opacity:0; filter:blur(3px); transform:translateY(2px)}
-    .char.revealed{opacity:1; filter:blur(0); transform:none; transition:opacity .18s ease, filter .18s ease, transform .18s ease}
-    .space{display:inline; white-space:pre; opacity:0}   /* spatie doet mee in reveal */
-    .space.revealed{opacity:1; transition:opacity .1s linear}
-
-    /* Knoppen (30% kleiner) */
-    .btnbar{display:flex; gap:10px; margin-top:16px}
-    .btnbar[hidden]{display:none}
-    .btn{
-      border:1px solid #39407f; background:linear-gradient(180deg,#2a3166,#1a214f); color:var(--ink);
-      padding:8px 12px; border-radius:12px; font-weight:700; font-size:.9rem; cursor:pointer
-    }
-    .btn:disabled{opacity:.45; filter:saturate(.7); cursor:not-allowed}
-    .btn.next{background:linear-gradient(180deg,#2d7a40,#18532b); border-color:#2c9457}
-    .btn.next:disabled{background:linear-gradient(180deg,#2a3166,#1a214f); border-color:#39407f}
-    @keyframes pulse {0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
-    .btn.next.pulse{animation:pulse 1.2s ease-in-out infinite}
-
-    /* voorkom afbreken binnen woorden */
-.story-text { hyphens: none; }
-.story-text .word{
-  display:inline-flex;          /* letters blijven bij elkaar */
-  flex-wrap:nowrap;             /* geen wrap binnen woord */
-  white-space:nowrap;           /* extra zekerheid */
-  word-break:keep-all;
-  overflow-wrap:normal;
-}
-.story-text .char{
-  display:inline-block;         /* voor de fade-in */
-}
-.story-text .space{
-  display:inline;               /* spatie kan wél wrap veroorloven */
-  white-space:pre;              /* echte spatie */
-}
-
-
-    @media (max-width:560px){
-      .wrap{padding:14px}
-      .card{border-radius:18px; padding:18px}
-      .ttl{font-size:1rem}
-    }
-    @media (prefers-reduced-motion: reduce){
-      .char,.space{transition:none}
-    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;}
+    .wrap{max-width:900px;margin:24px auto;padding:0 16px}
+    .card{background:linear-gradient(180deg,#14183a,#0e1230);border:1px solid #2a2f63;
+      border-radius:20px;box-shadow:var(--shadow);padding:22px 22px 26px}
+    .ttl{font-size:clamp(20px,6vw,34px);font-weight:800;margin:0 0 10px}
+    .progress{display:flex;gap:12px;align-items:center;margin:8px 0 18px;flex-wrap:wrap}
+    .dot{width:22px;height:22px;border-radius:999px;box-shadow:inset 0 0 0 2px #4250aa}
+    .dot.is-active{background:#56c7ff;box-shadow:0 0 0 3px #243164, inset 0 0 0 2px #56c7ff}
+    .dot.is-done{background:#5d65d8;opacity:.9}
+    .text{font-size:clamp(18px,5vw,30px);line-height:1.35;min-height:42vh}
+    /* nette afbreking zonder ‘wa↩︎arheid’ */
+    .text span{white-space:pre-wrap}
+    .text{overflow-wrap:anywhere}
+    .actions{display:flex;gap:14px;justify-content:flex-end;margin-top:18px}
+    .btn{border:none;border-radius:18px;padding:14px 18px;font-weight:700;cursor:pointer}
+    .btn:disabled{opacity:.35;cursor:not-allowed}
+    .btn--prev{background:#273061;color:#9fb1ff;transform:scale(.75)}
+    .btn--next{background:linear-gradient(180deg,var(--ok),var(--ok2));color:#fff;transform:scale(.75)}
+    .btn-icon{margin-left:10px;font-weight:900}
+    @media (min-width:480px){ .btn--prev,.btn--next{transform:scale(.9)} }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <section class="card" aria-label="Geanimeerde brief">
-      <header class="card-head">
-        <div class="ttl">Lieve Samanta — een geanimeerde brief</div>
-        <div class="progress" id="progress" aria-label="Voortgang"></div>
-      </header>
+    <section class="card" aria-live="polite">
+      <div class="ttl">Lieve Samanta — een geanimeerde brief</div>
+      <div class="progress" id="progress" aria-label="Voortgang"></div>
 
-      <div class="story">
-        <div id="text" class="story-text" aria-live="polite"></div>
+      <div id="text" class="text"></div>
 
-        <nav class="btnbar" id="btnBar" hidden>
-          <button class="btn prev" id="btnPrev" aria-label="Vorige scène">◀ Vorige</button>
-          <button class="btn next" id="btnNext" aria-label="Volgende scène">Volgende ▶</button>
-        </nav>
+      <div class="actions">
+        <button id="prev" class="btn btn--prev" disabled>
+          Vorige
+          <span aria-hidden="true" class="btn-icon">◀</span>
+        </button>
+        <button id="next" class="btn btn--next" disabled>
+          Volgende
+          <span aria-hidden="true" class="btn-icon">▶</span>
+        </button>
       </div>
     </section>
   </main>
 
   <script>
-    // --- scènes ---
-    const FRAMES = [
-      "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
-      "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
-      "Ik heb veel gegeven: woorden, tijd, cadeaus. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde niet te dwingen is.",
-      "Er waren momenten die aanvoelden als eeuwigheid. Onze nabijheid, onze stilte — flarden van hemel op aarde.",
-      "Dat jij mij blokkeerde, deed pijn. Toch zie ik het nu als een deur die rustig sluit, zodat ieder zijn pad kan vervolgen.",
-      "Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij.",
-      "Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een Engel-Mens die hemel en aarde verbindt.",
-      "Als sterren die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart. Niet uit bezit, maar uit dankbaarheid.",
-      "Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij.",
-      "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
-    ];
+  /* ================== PRIVACYVRIENDELIJKE TRACKER ================== */
+  const KML_TRACK_URL='/.netlify/functions/track';
+  const KML_SITE='klussenmetliefde';
+  const KML_PAGE=location.pathname;
 
-    const TYPE_SPEED = 22;
-    const STORAGE_KEY = 'story_unlock_v1';
+  function kmlVID(){
+    let v=localStorage.getItem('kml_vid');
+    if(!v){ v=crypto.randomUUID(); localStorage.setItem('kml_vid',v); }
+    return v;
+  }
+  function kmlSID(){
+    let s=sessionStorage.getItem('kml_sid');
+    if(!s){ s=crypto.randomUUID(); sessionStorage.setItem('kml_sid',s); }
+    return s;
+  }
+  const KML_VID=kmlVID(), KML_SID=kmlSID();
 
-    const elText = document.getElementById('text');
-    const elPrev = document.getElementById('btnPrev');
-    const elNext = document.getElementById('btnNext');
-    const elProgress = document.getElementById('progress');
-    const btnBar = document.getElementById('btnBar');
-
-    let current = 0, unlocked = 0, playing = false;
-
-    // voortgang herstellen
+  async function kmlTrack(ev,data={}){
     try{
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-      if (saved && typeof saved.unlocked === 'number') {
-        unlocked = Math.min(saved.unlocked, FRAMES.length - 1);
-        current  = Math.min(saved.current ?? 0, unlocked);
+      const body={site:KML_SITE,page:KML_PAGE,ev,data,vid:KML_VID,sid:KML_SID,
+        ua:navigator.userAgent,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+        day:new Date().toISOString().slice(0,10)};
+      await fetch(KML_TRACK_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+        keepalive:true, body:JSON.stringify(body)});
+    }catch(e){}
+  }
+
+  let kmlFrameStartTS=null, kmlCurrentFrame=null;
+  function kmlFrameStart(idx){
+    // dwell vorige
+    if(kmlCurrentFrame!=null && kmlFrameStartTS!=null){
+      const ms=performance.now()-kmlFrameStartTS;
+      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
+    }
+    kmlCurrentFrame=idx;
+    kmlFrameStartTS=performance.now();
+    kmlTrack('frame_start',{frame:idx});
+  }
+  function kmlFrameReady(idx){ kmlTrack('frame_ready',{frame:idx}); }
+  function kmlNav(action,from,to){ kmlTrack('nav',{action,from,to}); }
+
+  kmlTrack('page_open',{});
+  addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='hidden' && kmlCurrentFrame!=null && kmlFrameStartTS!=null){
+      const ms=performance.now()-kmlFrameStartTS;
+      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
+      kmlTrack('page_hidden',{});
+    }
+  });
+  addEventListener('beforeunload',()=>{
+    if(kmlCurrentFrame!=null && kmlFrameStartTS!=null){
+      const ms=performance.now()-kmlFrameStartTS;
+      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
+    }
+    kmlTrack('page_close',{});
+  });
+  /* ================== /TRACKER ================== */
+
+  // ====== Content ======
+  const FRAMES = [
+`Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.`,
+`Ik heb fouten gemaakt. Geen van beiden is geholpen met verstoppen of verdraaien. Daarom schrijf ik — zacht, eerlijk en precies.`,
+`Wat ik zag en voelde ging groter worden dan wij beiden. Verliefdheid die geneest als waarheid lucht krijgt. Dat is wat ik hier doe.`,
+`Ik wens jou rust, veiligheid en ruimte om je eigen muziek te worden — zonder dat iemand je dwingt, inclusief ik.`,
+`Dank je voor alles wat jij onbedoeld in mij wakker maakte. Uit die vlam bouw ik iets goeds — publiek, open en zonder spelletjes.`,
+`Als je ooit wil weten hoe ver ik kwam met waarheid, je bent welkom. Geen druk. Alleen helderheid.`
+  ];
+
+  // ====== UI refs ======
+  const elText = document.getElementById('text');
+  const elPrev = document.getElementById('prev');
+  const elNext = document.getElementById('next');
+  const elProgress = document.getElementById('progress');
+
+  // progress dots
+  const dots = [];
+  for(let i=0;i<FRAMES.length;i++){
+    const d=document.createElement('div');
+    d.className='dot';
+    dots.push(d);
+    elProgress.appendChild(d);
+  }
+
+  let idx=0, typing=false, typerCancel=null;
+
+  function setDots(i){
+    dots.forEach((d,k)=>{
+      d.classList.toggle('is-active', k===i);
+      d.classList.toggle('is-done', k<i);
+    });
+  }
+
+  function tokenize(sentence){
+    // houd spaties intact en voeg zachte afbreekhint rond lange woorden
+    // (we werken met pre-wrap zodat spaties blijven)
+    const tokens=[];
+    sentence.split(/(\s+)/).forEach(part=>{
+      if(part==='') return;
+      // break-oplossing: zachte afbreekbare hint in lange woorden
+      if(/\S/.test(part) && part.length>12){
+        // voeg &shy; in het midden
+        const mid=Math.floor(part.length/2);
+        part = part.slice(0,mid) + '\u00AD' + part.slice(mid);
       }
-    }catch{}
-    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({current,unlocked}));
+      tokens.push(part);
+    });
+    return tokens;
+  }
 
-    function buildDots(){
-      elProgress.innerHTML = '';
-      FRAMES.forEach((_, i) => {
-        const d = document.createElement('div');
-        d.className = 'dot' + (i <= unlocked ? ' unlocked' : '') + (i === current ? ' current' : '');
-        d.title = `Scène ${i+1} van ${FRAMES.length}`;
-        if (i <= unlocked) d.onclick = () => go(i, true);
-        elProgress.appendChild(d);
-      });
-    }
+  function typeText(sentence, onDone){
+    typing=true;
+    elPrev.disabled=true; elNext.disabled=true;
 
-    function setButtons(){
-      elPrev.disabled = (current === 0);
-      const canGoNext = (current < unlocked) && (current < FRAMES.length - 1);
-      elNext.disabled = !canGoNext;
-      elNext.classList.toggle('pulse', canGoNext);
-    }
+    const tokens = tokenize(sentence);
+    elText.innerHTML='';
+    let i=0, canceled=false;
+    typerCancel = ()=>{ canceled=true; };
 
-    // === NIEUW: woorden groeperen, breek alleen op spaties ===
-    function revealText(str){
-      btnBar.hidden = true;             // verberg knoppen tijdens typen
-      elText.innerHTML = '';
+    function step(){
+      if(canceled) return;
 
-      const frag = document.createDocumentFragment();
-      const tokens = str.match(/\S+|\s+/g) || []; // woorden of whitespace
+      const span=document.createElement('span');
+      span.textContent = tokens[i];
+      elText.appendChild(span);
 
-      for (const t of tokens){
-        if (/^\s+$/.test(t)){
-          // spatie/whitespace als apart element (mag afbreken)
-          const sp = document.createElement('span');
-          sp.className = 'space';
-          sp.textContent = ' ';
-          frag.appendChild(sp);
-        } else {
-          // woord: niet afbreken binnen woord
-          const w = document.createElement('span');
-          w.className = 'word';
-          for (const ch of t){
-            const s = document.createElement('span');
-            s.className = 'char';
-            s.textContent = ch;
-            w.appendChild(s);
-          }
-          frag.appendChild(w);
-        }
+      i++;
+      if(i<tokens.length){
+        // iets sneller op spaties
+        const delay = (/\s/.test(tokens[i-1])) ? 10 : 28;
+        setTimeout(step, delay);
+      }else{
+        typing=false;
+        elPrev.disabled = (idx===0);
+        elNext.disabled = (idx===FRAMES.length-1);
+        kmlFrameReady(idx);              // << TRACK: frame klaar
+        onDone && onDone();
       }
-      elText.appendChild(frag);
-
-      const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const nodes = elText.querySelectorAll('.char, .space');
-
-      if (noMotion){
-        nodes.forEach(n => n.classList.add('revealed'));
-        return Promise.resolve();
-      }
-
-      playing = true;
-      return new Promise(resolve=>{
-        let i = 0;
-        (function step(){
-          if (i < nodes.length){
-            nodes[i++].classList.add('revealed');
-            setTimeout(step, TYPE_SPEED);
-          } else {
-            playing = false;
-            resolve();
-          }
-        })();
-      });
     }
+    step();
+  }
 
-    async function render(){
-      buildDots();
-      await revealText(FRAMES[current]);
+  function showFrame(i){
+    if(typing && typerCancel) typerCancel();
+    idx=i;
+    setDots(i);
+    kmlFrameStart(i);                     // << TRACK: frame start
+    typeText(FRAMES[i]);
+    // scroll card in beeld (mobiel comfort)
+    document.querySelector('.card').scrollIntoView({behavior:'smooth',block:'start'});
+  }
 
-      unlocked = Math.max(unlocked, current + 1);
-      save();
-
-      buildDots();
-      setButtons();
-      btnBar.hidden = false;
-
-      // analytics hook
-      window.dispatchEvent(new CustomEvent('story_frame_view', { detail:{ index: current }}));
+  elNext.addEventListener('click', ()=>{
+    if(typing) return;
+    const to = Math.min(idx+1, FRAMES.length-1);
+    if(to!==idx){
+      kmlNav('next', idx, to);            // << TRACK
+      showFrame(to);
     }
-
-    function go(idx, force=false){
-      if (playing && !force) return;
-      if (idx < 0 || idx >= FRAMES.length) return;
-      if (idx > unlocked) return;
-      current = idx;
-      save();
-      render();
+  });
+  elPrev.addEventListener('click', ()=>{
+    if(typing) return;
+    const to = Math.max(idx-1, 0);
+    if(to!==idx){
+      kmlNav('prev', idx, to);            // << TRACK
+      showFrame(to);
     }
+  });
 
-    elPrev.addEventListener('click', ()=> go(current - 1, true));
-    elNext.addEventListener('click', ()=> go(current + 1, true));
-
-    render();
+  // init
+  setDots(0);
+  showFrame(0);
   </script>
 </body>
 </html>
