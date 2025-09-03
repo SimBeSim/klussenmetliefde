@@ -4,44 +4,51 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lieve Samanta — geanimeerde brief</title>
-  <meta name="description" content="Een geanimeerde brief aan Samanta.">
+  <meta name="description" content="Een geanimeerde brief gericht aan Samanta">
   <style>
     :root{
       --bg:#0f1226; --panel:#161a36; --panel2:#121634; --ink:#e8ecff; --muted:#b7c0ff;
-      --accent:#7ae1ff; --good:#2ecc71; --shadow:0 12px 30px rgba(0,0,0,.35);
+      --accent:#7ae1ff; --shadow:0 12px 30px rgba(0,0,0,.35);
     }
     html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Fira Sans','Helvetica Neue',Arial,sans-serif}
     .wrap{max-width:880px; margin:0 auto; padding:18px}
     .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid #2a2f5e; border-radius:22px; box-shadow:var(--shadow); padding:22px}
+
+    /* Header onder elkaar */
     .card-head{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:12px}
-    .ttl{font-weight:800; font-size:1.55rem; letter-spacing:.2px}
+    /* Titel ~30% kleiner */
+    .ttl{font-weight:800; font-size:1.1rem; letter-spacing:.2px}
+
     .progress{display:flex; gap:10px; flex-wrap:wrap}
     .dot{width:12px; height:12px; border-radius:50%; background:#6e82ff; opacity:.35; transition:transform .15s, opacity .2s}
     .dot.unlocked{opacity:.85; cursor:pointer}
     .dot.current{outline:2px solid var(--accent); outline-offset:2px; transform:scale(1.1)}
+
     .story{padding-top:6px}
-    .story-text{font-size:clamp(1.15rem, 2.6vw, 2rem); line-height:1.45; min-height:38vh}
-    .char{opacity:0; filter:blur(3px); transform:translateY(2px); display:inline-block}
+    .story-text{font-size:clamp(1.05rem, 2.2vw, 1.65rem); line-height:1.45; min-height:38vh}
+
+    /* Typewriter karakters */
+    .char{display:inline-block; opacity:0; filter:blur(3px); transform:translateY(2px)}
     .char.revealed{opacity:1; filter:blur(0); transform:none; transition:opacity .18s ease, filter .18s ease, transform .18s ease}
 
-    .btnbar{display:flex; gap:12px; margin-top:16px}
+    /* Knoppen 30% kleiner */
+    .btnbar{display:flex; gap:10px; margin-top:16px}
     .btnbar[hidden]{display:none}
-    .btn{border:1px solid #39407f; background:linear-gradient(180deg,#2a3166,#1a214f); color:var(--ink);
-         padding:12px 18px; border-radius:14px; font-weight:700; font-size:1.05rem; cursor:pointer}
+    .btn{
+      border:1px solid #39407f; background:linear-gradient(180deg,#2a3166,#1a214f); color:var(--ink);
+      padding:8px 12px; border-radius:12px; font-weight:700; font-size:.9rem; cursor:pointer
+    }
     .btn:disabled{opacity:.45; filter:saturate(.7); cursor:not-allowed}
     .btn.next{background:linear-gradient(180deg,#2d7a40,#18532b); border-color:#2c9457}
     .btn.next:disabled{background:linear-gradient(180deg,#2a3166,#1a214f); border-color:#39407f}
     @keyframes pulse {0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
     .btn.next.pulse{animation:pulse 1.2s ease-in-out infinite}
 
-    /* Hele kaart wat ruimer op mobiel */
     @media (max-width:560px){
       .wrap{padding:14px}
       .card{border-radius:18px; padding:18px}
-      .ttl{font-size:1.35rem}
+      .ttl{font-size:1rem}
     }
-
-    /* Respecteer reduced motion */
     @media (prefers-reduced-motion: reduce){
       .char{transition:none}
     }
@@ -49,9 +56,9 @@
 </head>
 <body>
   <main class="wrap">
-    <section class="card" aria-label="Filmische brief">
+    <section class="card" aria-label="Geanimeerde brief">
       <header class="card-head">
-        <div class="ttl">Lieve Samanta — een filmische brief</div>
+        <div class="ttl">Lieve Samanta — een geanimeerde brief</div>
         <div class="progress" id="progress" aria-label="Voortgang"></div>
       </header>
 
@@ -67,9 +74,7 @@
   </main>
 
   <script>
-    // -------------------------------------------
-    // 1) VUL JE SCÈNES HIER IN
-    // -------------------------------------------
+    // --- scènes ---
     const FRAMES = [
       "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
       "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
@@ -83,10 +88,7 @@
       "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
     ];
 
-    // -------------------------------------------
-    // 2) SPELER-LOGICA
-    // -------------------------------------------
-    const TYPE_SPEED = 22; // ms per teken
+    const TYPE_SPEED = 22;
     const STORAGE_KEY = 'story_unlock_v1';
 
     const elText = document.getElementById('text');
@@ -95,20 +97,17 @@
     const elProgress = document.getElementById('progress');
     const btnBar = document.getElementById('btnBar');
 
-    let current = 0;
-    let unlocked = 0;   // hoogste index die je mag openen (incl.)
-    let playing = false;
+    let current = 0, unlocked = 0, playing = false;
 
-    // Herstel voortgang
-    try {
+    // voortgang herstellen
+    try{
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
       if (saved && typeof saved.unlocked === 'number') {
         unlocked = Math.min(saved.unlocked, FRAMES.length - 1);
         current  = Math.min(saved.current ?? 0, unlocked);
       }
-    } catch {}
-
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, unlocked })); }
+    }catch{}
+    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({current,unlocked}));
 
     function buildDots(){
       elProgress.innerHTML = '';
@@ -129,34 +128,39 @@
     }
 
     function revealText(str){
-      // Verberg knoppen tijdens typen
+      // verberg knoppen tijdens typen
       btnBar.hidden = true;
 
       elText.innerHTML = '';
       const frag = document.createDocumentFragment();
-      const spans = [];
+
       for (const ch of str){
         const s = document.createElement('span');
         s.className = 'char';
-        s.textContent = ch;
-        spans.push(s);
+        if (ch === ' ') {
+          // spatie als &nbsp; zodat hij zichtbaar blijft in per-char spans
+          s.innerHTML = '&nbsp;';
+        } else {
+          s.textContent = ch;
+        }
         frag.appendChild(s);
       }
       elText.appendChild(frag);
 
-      const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (noMotion){
-        spans.forEach(s => s.classList.add('revealed'));
+        [...elText.children].forEach(n => n.classList.add('revealed'));
         return Promise.resolve();
       }
 
       playing = true;
       return new Promise(resolve=>{
+        const nodes = elText.children;
         let i = 0;
-        (function tick(){
-          if (i < spans.length){
-            spans[i++].classList.add('revealed');
-            setTimeout(tick, TYPE_SPEED);
+        (function step(){
+          if (i < nodes.length){
+            nodes[i++].classList.add('revealed');
+            setTimeout(step, TYPE_SPEED);
           } else {
             playing = false;
             resolve();
@@ -169,14 +173,11 @@
       buildDots();
       await revealText(FRAMES[current]);
 
-      // na uittypen: volgende ontgrendelen
       unlocked = Math.max(unlocked, current + 1);
       save();
 
       buildDots();
       setButtons();
-
-      // knoppen nu pas tonen
       btnBar.hidden = false;
 
       // analytics hook
@@ -195,7 +196,6 @@
     elPrev.addEventListener('click', ()=> go(current - 1, true));
     elNext.addEventListener('click', ()=> go(current + 1, true));
 
-    // Start
     render();
   </script>
 </body>
