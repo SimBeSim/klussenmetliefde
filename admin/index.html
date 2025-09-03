@@ -1,19 +1,25 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="nl">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Klussen met Liefde — Admin</title>
-    <script>
-      // Zorg dat Decap CMS wacht op onze expliciete init:
-      window.CMS_MANUAL_INIT = true;
-    </script>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+    <!-- Decap (Netlify) CMS -->
+    <script src="https://unpkg.com/decap-cms@^3.8.3/dist/decap-cms.js"></script>
+
+    <!-- Optioneel: eigen preview CSS -->
+    <link rel="stylesheet" href="/admin/preview.css" />
   </head>
   <body>
     <script>
-      // Start het CMS (verwacht /admin/config.yml)
-      CMS.init();
+      // Als je MANUAL_INIT gebruikt, MOET je init() zelf aanroepen.
+      // window.CMS_MANUAL_INIT = true;
+      // CMS.init(); // <- aanzetten als je MANUAL_INIT gebruikt
+
+      // In de meeste gevallen is automatisch init prima:
+      // (laat MANUAL_INIT uit = Decap start zelf)
     </script>
   </body>
 </html>
+
