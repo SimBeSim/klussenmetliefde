@@ -1,5 +1,5 @@
-// Netlify Function: append events als JSONL naar Netlify Blobs.
-// Map: events/YYYY-MM-DD.jsonl
+// Slaat elk event op als één JSON-regel in Netlify Blobs.
+// Bestandsnaam per dag: events/YYYY-MM-DD.jsonl
 
 export default async (req, context) => {
   try {
@@ -8,13 +8,19 @@ export default async (req, context) => {
     }
 
     const body = await req.json();
-    body._ts = new Date().toISOString();   // server timestamp
-    //delete body.ip;                        // geen IP opslaan
+    const now = new Date();
 
-    const day = body.day || new Date().toISOString().slice(0,10);
+    const record = {
+      ...body,
+      _ts: now.toISOString(),             // server timestamp
+      _ua: req.headers.get('user-agent') || '',
+    };
+
+    const day = body.day || now.toISOString().slice(0,10); // YYYY-MM-DD
     const key = `events/${day}.jsonl`;
 
-    const line = JSON.stringify(body) + '\n';
+    // Append één regel JSON
+    const line = JSON.stringify(record) + '\n';
     await context.blobs.append(key, new TextEncoder().encode(line), {
       addRandomSuffix: false,
     });
