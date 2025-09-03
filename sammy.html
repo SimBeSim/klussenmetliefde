@@ -76,137 +76,138 @@
     </div>
   </div>
 
-  <script>
-    /* ------------------ CONFIG ------------------ */
-    const FRAMES = [
-      "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
-      "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
-      "Ik heb veel gegeven: woorden, tijd, cadeaus. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde niet te dwingen is.",
-      "Er waren momenten die aanvoelden als eeuwigheid. Onze nabijheid, onze stilte — flarden van hemel op aarde.",
-      "Dat jij mij blokkeerde, deed pijn. Toch zie ik het nu als een deur die rustig sluit, zodat ieder zijn pad kan vervolgen.",
-      "Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij.",
-      "Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een Engel-Mens die hemel en aarde verbindt.",
-      "Als sterren die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart. Niet uit bezit, maar uit dankbaarheid.",
-      "Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij.",
-      "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
-    ];
+ <script>
+  // ------------------ CONFIG ------------------
+  const FRAMES = [
+    "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
+    "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
+    "Ik heb veel gegeven: woorden, tijd, cadeaus. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde niet te dwingen is.",
+    "Er waren momenten die aanvoelden als eeuwigheid. Onze nabijheid, onze stilte — flarden van hemel op aarde.",
+    "Dat jij mij blokkeerde, deed pijn. Toch zie ik het nu als een deur die rustig sluit, zodat ieder zijn pad kan vervolgen.",
+    "Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij.",
+    "Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een Engel-Mens die hemel en aarde verbindt.",
+    "Als sterren die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart. Niet uit bezit, maar uit dankbaarheid.",
+    "Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij.",
+    "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
+  ];
 
-    const TYPE_SPEED = 22; // ms per teken
-    const STORAGE_KEY = 'story_unlock_v1';
+  const TYPE_SPEED = 22;
+  const STORAGE_KEY = 'story_unlock_v1';
 
-    /* ------------- STATE & ELEMENTS ------------- */
-    const elText = document.getElementById('text');
-    const elPrev = document.getElementById('btnPrev');
-    const elNext = document.getElementById('btnNext');
-    const elSkip = document.getElementById('skip');
-    const elProgress = document.getElementById('progress');
+  // ------------- STATE & ELEMENTS -------------
+  const elText = document.getElementById('text');
+  const elPrev = document.getElementById('btnPrev');
+  const elNext = document.getElementById('btnNext');
+  const elProgress = document.getElementById('progress');
 
-    let current = 0;
-    let unlocked = 0; // hoogste index dat volledig is getoond
-    let playing = false; // animatie bezig
-    let abortReveal = false;
+  let current = 0;
+  // BELANGRIJK: 'unlocked' = hoogste INDEX die je MAG openen (inclusief).
+  // Start: alleen frame 0 is open -> unlocked = 0.
+  let unlocked = 0;
+  let playing = false;
+  let abortReveal = false;
 
-    // laad voortgang
-    try{
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
-      if (saved && typeof saved.unlocked === 'number') {
-        unlocked = Math.min(saved.unlocked, FRAMES.length-1);
-        current = Math.min(saved.current||0, unlocked);
-      }
-    }catch{}
-
-    function save(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, unlocked }));
+  // voortgang laden
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (saved && typeof saved.unlocked === 'number') {
+      unlocked = Math.min(saved.unlocked, FRAMES.length - 1);  // b.v. 0
+      current  = Math.min(saved.current ?? 0, unlocked);        // tot aan unlocked
     }
+  } catch {}
 
-    function buildDots(){
-      elProgress.innerHTML = '';
-      FRAMES.forEach((_,i)=>{
-        const d = document.createElement('div');
-        d.className = 'dot' + (i<=unlocked?' unlocked':'') + (i===current?' current':'');
-        d.title = `Frame ${i+1} van ${FRAMES.length}`;
-        if (i<=unlocked) d.onclick = ()=>go(i, /*force*/ true);
-        elProgress.appendChild(d);
-      });
-    }
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, unlocked }));
+  }
 
-    function setButtons(){
-      elPrev.disabled = (current===0);
-      elNext.disabled = playing || (current>=unlocked) || (current===FRAMES.length-1);
-    }
-
-    function revealText(str){
-      elText.innerHTML = '';
-      // split op chars, maak spans
-      const frag = document.createDocumentFragment();
-      const spans = [];
-      for (const ch of str){
-        const s = document.createElement('span');
-        s.className = 'char';
-        s.textContent = ch;
-        spans.push(s); frag.appendChild(s);
-      }
-      elText.appendChild(frag);
-
-      const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (noMotion){
-        spans.forEach(s=>s.classList.add('revealed'));
-        return Promise.resolve();
-      }
-
-      playing = true; setButtons();
-      return new Promise(resolve=>{
-        let i=0;
-        (function tick(){
-          if (abortReveal){ // fast-forward
-            spans.forEach(s=>s.classList.add('revealed'));
-            abortReveal = false; playing = false; setButtons(); resolve(); return;
-          }
-          if (i<spans.length){
-            spans[i++].classList.add('revealed');
-            setTimeout(tick, TYPE_SPEED);
-          } else {
-            playing = false; setButtons(); resolve();
-          }
-        })();
-      });
-    }
-
-    async function render(){
-      buildDots();
-      setButtons();
-      elSkip.style.display = 'inline-block';
-      await revealText(FRAMES[current]);
-      // frame is nu volledig getoond
-      if (current>unlocked){ unlocked = current; }
-      else { unlocked = Math.max(unlocked, current); }
-      save();
-      buildDots();
-      setButtons();
-      // analytics hook
-      window.dispatchEvent(new CustomEvent('story_frame_view', { detail:{ index: current } }));
-    }
-
-    function go(idx, force=false){
-      if (playing && !force) return; // niet springen tijdens animatie
-      if (idx<0 || idx>=FRAMES.length) return;
-      // Alleen vooruit springen naar <= unlocked
-      if (idx>unlocked) return;
-      current = idx; save(); render();
-    }
-
-    elPrev.addEventListener('click', ()=> go(current-1, true));
-    elNext.addEventListener('click', ()=> go(current+1, true));
-    elSkip.addEventListener('click', ()=>{ if (playing){ abortReveal = true; }});
-
-    // Keyboard (optioneel op desktop)
-    window.addEventListener('keydown', (e)=>{
-      if (e.key==='ArrowRight') elNext.click();
-      if (e.key==='ArrowLeft') elPrev.click();
+  function buildDots() {
+    elProgress.innerHTML = '';
+    FRAMES.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i <= unlocked ? ' unlocked' : '') + (i === current ? ' current' : '');
+      d.title = `Frame ${i+1} van ${FRAMES.length}`;
+      if (i <= unlocked) d.onclick = () => go(i, true);
+      elProgress.appendChild(d);
     });
+  }
 
-    // Start
+  function setButtons() {
+    elPrev.disabled = (current === 0);
+    // Volgende is ENABLED wanneer je nóg een frame MAG openen
+    // (dus current < unlocked) en we niet op de laatste zitten en niet aan het afspelen.
+    elNext.disabled = playing || (current >= unlocked) || (current === FRAMES.length - 1);
+  }
+
+  function revealText(str) {
+    elText.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    const spans = [];
+    for (const ch of str) {
+      const s = document.createElement('span');
+      s.className = 'char';
+      s.textContent = ch;
+      spans.push(s);
+      frag.appendChild(s);
+    }
+    elText.appendChild(frag);
+
+    const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (noMotion) {
+      spans.forEach(s => s.classList.add('revealed'));
+      return Promise.resolve();
+    }
+
+    playing = true; setButtons();
+    return new Promise(resolve => {
+      let i = 0;
+      (function tick() {
+        if (abortReveal) {
+          spans.forEach(s => s.classList.add('revealed'));
+          abortReveal = false; playing = false; setButtons(); resolve(); return;
+        }
+        if (i < spans.length) {
+          spans[i++].classList.add('revealed');
+          setTimeout(tick, TYPE_SPEED);
+        } else {
+          playing = false; setButtons(); resolve();
+        }
+      })();
+    });
+  }
+
+  async function render() {
+    buildDots();
+    setButtons();
+    await revealText(FRAMES[current]);
+
+    // ✅ Frame is volledig getoond → ontgrendel het VOLGENDE frame.
+    // Dat betekent dat je nu t/m current+1 mag openen.
+    unlocked = Math.max(unlocked, current + 1);
+    save();
+
+    buildDots();
+    setButtons();
+
+    // Analytics hook (blijft gelijk)
+    window.dispatchEvent(new CustomEvent('story_frame_view', { detail: { index: current } }));
+  }
+
+  function go(idx, force = false) {
+    if (playing && !force) return;
+    if (idx < 0 || idx >= FRAMES.length) return;
+    // Alleen naar frames die ontgrendeld zijn
+    if (idx > unlocked) return;
+    current = idx;
+    save();
     render();
-  </script>
+  }
+
+  elPrev.addEventListener('click', () => go(current - 1, true));
+  elNext.addEventListener('click', () => go(current + 1, true));
+
+  // Start
+  render();
+</script>
+
 </body>
 </html>
