@@ -1,213 +1,202 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Liefdesbrief — Filmisch verhaal</title>
-  <meta name="description" content="Paginagewijze, geanimeerde brief. Mobiel-vriendelijk. Geen scroll; volgende verschijnt pas na volledige weergave.">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lieve Samanta — filmische brief</title>
+  <meta name="description" content="Een filmische brief met paginagewijze scènes, geanimeerd en zonder scroll.">
   <style>
     :root{
-      --bg:#0e0f17; --ink:#eef1ff; --muted:#b9c0ff; --accent:#7ae1ff; --ok:#34A853; --hot:#EA4335;
-      --card:#12142a; --edge:#272d58; --shadow:0 12px 40px rgba(0,0,0,.45);
-      --btn:#1d2142; --btnEdge:#3b428b;
+      --bg:#0f1226; --panel:#161a36; --panel2:#121634; --ink:#e8ecff; --muted:#b7c0ff;
+      --accent:#7ae1ff; --good:#2ecc71; --shadow:0 12px 30px rgba(0,0,0,.35);
     }
-    html,body{height:100%; margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Fira Sans", "Helvetica Neue", Arial, sans-serif}
-    .wrap{min-height:100%; display:flex; align-items:center; justify-content:center; padding:16px}
-    .card{width:min(760px,100%); min-height:60vh; max-height:86vh; background:linear-gradient(180deg,var(--card),#0b0d24); border:1px solid var(--edge); border-radius:18px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden}
-    header{padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:1px solid rgba(255,255,255,.06)}
-    header .ttl{font-weight:700; letter-spacing:.3px}
-    header .progress{display:flex; gap:6px; align-items:center}
-    .dot{width:9px;height:9px;border-radius:50%; background:#39407a; opacity:.7}
-    .dot.unlocked{background:#6f78d8; opacity:1; cursor:pointer}
-    .dot.current{background:var(--accent); box-shadow:0 0 0 3px rgba(122,225,255,.15)}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Fira Sans','Helvetica Neue',Arial,sans-serif}
+    .wrap{max-width:880px; margin:0 auto; padding:18px}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid #2a2f5e; border-radius:22px; box-shadow:var(--shadow); padding:22px}
+    .card-head{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-bottom:12px}
+    .ttl{font-weight:800; font-size:1.55rem; letter-spacing:.2px}
+    .progress{display:flex; gap:10px; flex-wrap:wrap}
+    .dot{width:12px; height:12px; border-radius:50%; background:#6e82ff; opacity:.35; transition:transform .15s, opacity .2s}
+    .dot.unlocked{opacity:.85; cursor:pointer}
+    .dot.current{outline:2px solid var(--accent); outline-offset:2px; transform:scale(1.1)}
+    .story{padding-top:6px}
+    .story-text{font-size:clamp(1.15rem, 2.6vw, 2rem); line-height:1.45; min-height:38vh}
+    .char{opacity:0; filter:blur(3px); transform:translateY(2px); display:inline-block}
+    .char.revealed{opacity:1; filter:blur(0); transform:none; transition:opacity .18s ease, filter .18s ease, transform .18s ease}
 
-    .viewport{position:relative; flex:1; display:grid; place-items:center; padding:18px}
-    .slide{max-width:90%; max-height:100%; overflow:hidden; display:flex; align-items:center; justify-content:center}
-    .text{font-size:clamp(18px, 4.5vw, 24px); line-height:1.6; color:var(--ink)}
-    .muted{color:var(--muted)}
+    .btnbar{display:flex; gap:12px; margin-top:16px}
+    .btnbar[hidden]{display:none}
+    .btn{border:1px solid #39407f; background:linear-gradient(180deg,#2a3166,#1a214f); color:var(--ink);
+         padding:12px 18px; border-radius:14px; font-weight:700; font-size:1.05rem; cursor:pointer}
+    .btn:disabled{opacity:.45; filter:saturate(.7); cursor:not-allowed}
+    .btn.next{background:linear-gradient(180deg,#2d7a40,#18532b); border-color:#2c9457}
+    .btn.next:disabled{background:linear-gradient(180deg,#2a3166,#1a214f); border-color:#39407f}
+    @keyframes pulse {0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+    .btn.next.pulse{animation:pulse 1.2s ease-in-out infinite}
 
-    .footer{display:flex; gap:10px; padding:14px; border-top:1px solid rgba(255,255,255,.06)}
-    .btn{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 14px; border-radius:12px; background:linear-gradient(180deg,var(--btn),#15193a); color:var(--ink); border:1px solid var(--btnEdge); font-weight:600}
-    .btn[disabled]{opacity:.5; filter:saturate(.5); cursor:not-allowed}
-    .btn.ok{background:linear-gradient(180deg,#245e2e,#11381a); border-color:#1d7a3b}
-    .btn.hot{background:linear-gradient(180deg,#7b1c34,#551226); border-color:#9a2743}
-    .ghost{background:transparent; border-color:rgba(255,255,255,.18)}
+    /* Hele kaart wat ruimer op mobiel */
+    @media (max-width:560px){
+      .wrap{padding:14px}
+      .card{border-radius:18px; padding:18px}
+      .ttl{font-size:1.35rem}
+    }
 
-    .skip{position:absolute; right:14px; bottom:14px; padding:6px 10px; border-radius:999px; font-size:13px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:#e8ecff}
-
-    /* Typewriter effect */
-    .char{opacity:0; transform:translateY(6px);}
-    .char.revealed{opacity:1; transform:translateY(0); transition:opacity .22s ease, transform .22s ease}
-
-    /* Accessibility: reduced motion */
+    /* Respecteer reduced motion */
     @media (prefers-reduced-motion: reduce){
-      .char{opacity:1; transform:none}
-      .char.revealed{transition:none}
-    }
-
-    /* Mobile tweaks */
-    @media (max-width:480px){
-      .card{min-height:78vh}
-      header{padding:10px 12px}
-      .footer{padding:10px}
-      .text{font-size:clamp(18px, 4.8vw, 20px)}
+      .char{transition:none}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="region" aria-label="Filmische brief, paginagewijs">
-      <header>
+  <main class="wrap">
+    <section class="card" aria-label="Filmische brief">
+      <header class="card-head">
         <div class="ttl">Lieve Samanta — een filmische brief</div>
         <div class="progress" id="progress" aria-label="Voortgang"></div>
       </header>
 
-      <div class="viewport">
-        <div class="slide" id="slide" aria-live="polite">
-          <div class="text" id="text"></div>
-        </div>
-       
+      <div class="story">
+        <div id="text" class="story-text" aria-live="polite"></div>
+
+        <nav class="btnbar" id="btnBar" hidden>
+          <button class="btn prev" id="btnPrev" aria-label="Vorige scène">◀ Vorige</button>
+          <button class="btn next" id="btnNext" aria-label="Volgende scène">Volgende ▶</button>
+        </nav>
       </div>
+    </section>
+  </main>
 
-      <div class="footer">
-        <button class="btn ghost" id="btnPrev" aria-label="Vorige" disabled>◀ Vorige</button>
-        <button class="btn ok" id="btnNext" aria-label="Volgende" disabled>Volgende ▶</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    // -------------------------------------------
+    // 1) VUL JE SCÈNES HIER IN
+    // -------------------------------------------
+    const FRAMES = [
+      "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
+      "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
+      "Ik heb veel gegeven: woorden, tijd, cadeaus. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde niet te dwingen is.",
+      "Er waren momenten die aanvoelden als eeuwigheid. Onze nabijheid, onze stilte — flarden van hemel op aarde.",
+      "Dat jij mij blokkeerde, deed pijn. Toch zie ik het nu als een deur die rustig sluit, zodat ieder zijn pad kan vervolgen.",
+      "Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij.",
+      "Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een Engel-Mens die hemel en aarde verbindt.",
+      "Als sterren die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart. Niet uit bezit, maar uit dankbaarheid.",
+      "Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij.",
+      "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
+    ];
 
- <script>
-  // ------------------ CONFIG ------------------
-  const FRAMES = [
-    "Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.",
-    "Je kwam in mijn leven als een ster. Ik zag in jou een Engel — een spiegel waarin ik mijn eigen hart leerde zien.",
-    "Ik heb veel gegeven: woorden, tijd, cadeaus. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde niet te dwingen is.",
-    "Er waren momenten die aanvoelden als eeuwigheid. Onze nabijheid, onze stilte — flarden van hemel op aarde.",
-    "Dat jij mij blokkeerde, deed pijn. Toch zie ik het nu als een deur die rustig sluit, zodat ieder zijn pad kan vervolgen.",
-    "Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij.",
-    "Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een Engel-Mens die hemel en aarde verbindt.",
-    "Als sterren die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart. Niet uit bezit, maar uit dankbaarheid.",
-    "Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij.",
-    "Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxim"
-  ];
+    // -------------------------------------------
+    // 2) SPELER-LOGICA
+    // -------------------------------------------
+    const TYPE_SPEED = 22; // ms per teken
+    const STORAGE_KEY = 'story_unlock_v1';
 
-  const TYPE_SPEED = 22;
-  const STORAGE_KEY = 'story_unlock_v1';
+    const elText = document.getElementById('text');
+    const elPrev = document.getElementById('btnPrev');
+    const elNext = document.getElementById('btnNext');
+    const elProgress = document.getElementById('progress');
+    const btnBar = document.getElementById('btnBar');
 
-  // ------------- STATE & ELEMENTS -------------
-  const elText = document.getElementById('text');
-  const elPrev = document.getElementById('btnPrev');
-  const elNext = document.getElementById('btnNext');
-  const elProgress = document.getElementById('progress');
+    let current = 0;
+    let unlocked = 0;   // hoogste index die je mag openen (incl.)
+    let playing = false;
 
-  let current = 0;
-  // BELANGRIJK: 'unlocked' = hoogste INDEX die je MAG openen (inclusief).
-  // Start: alleen frame 0 is open -> unlocked = 0.
-  let unlocked = 0;
-  let playing = false;
-  let abortReveal = false;
+    // Herstel voortgang
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && typeof saved.unlocked === 'number') {
+        unlocked = Math.min(saved.unlocked, FRAMES.length - 1);
+        current  = Math.min(saved.current ?? 0, unlocked);
+      }
+    } catch {}
 
-  // voortgang laden
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (saved && typeof saved.unlocked === 'number') {
-      unlocked = Math.min(saved.unlocked, FRAMES.length - 1);  // b.v. 0
-      current  = Math.min(saved.current ?? 0, unlocked);        // tot aan unlocked
-    }
-  } catch {}
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, unlocked })); }
 
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, unlocked }));
-  }
-
-  function buildDots() {
-    elProgress.innerHTML = '';
-    FRAMES.forEach((_, i) => {
-      const d = document.createElement('div');
-      d.className = 'dot' + (i <= unlocked ? ' unlocked' : '') + (i === current ? ' current' : '');
-      d.title = `Frame ${i+1} van ${FRAMES.length}`;
-      if (i <= unlocked) d.onclick = () => go(i, true);
-      elProgress.appendChild(d);
-    });
-  }
-
-  function setButtons() {
-    elPrev.disabled = (current === 0);
-    // Volgende is ENABLED wanneer je nóg een frame MAG openen
-    // (dus current < unlocked) en we niet op de laatste zitten en niet aan het afspelen.
-    elNext.disabled = playing || (current >= unlocked) || (current === FRAMES.length - 1);
-  }
-
-  function revealText(str) {
-    elText.innerHTML = '';
-    const frag = document.createDocumentFragment();
-    const spans = [];
-    for (const ch of str) {
-      const s = document.createElement('span');
-      s.className = 'char';
-      s.textContent = ch;
-      spans.push(s);
-      frag.appendChild(s);
-    }
-    elText.appendChild(frag);
-
-    const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (noMotion) {
-      spans.forEach(s => s.classList.add('revealed'));
-      return Promise.resolve();
+    function buildDots(){
+      elProgress.innerHTML = '';
+      FRAMES.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i <= unlocked ? ' unlocked' : '') + (i === current ? ' current' : '');
+        d.title = `Scène ${i+1} van ${FRAMES.length}`;
+        if (i <= unlocked) d.onclick = () => go(i, true);
+        elProgress.appendChild(d);
+      });
     }
 
-    playing = true; setButtons();
-    return new Promise(resolve => {
-      let i = 0;
-      (function tick() {
-        if (abortReveal) {
-          spans.forEach(s => s.classList.add('revealed'));
-          abortReveal = false; playing = false; setButtons(); resolve(); return;
-        }
-        if (i < spans.length) {
-          spans[i++].classList.add('revealed');
-          setTimeout(tick, TYPE_SPEED);
-        } else {
-          playing = false; setButtons(); resolve();
-        }
-      })();
-    });
-  }
+    function setButtons(){
+      elPrev.disabled = (current === 0);
+      const canGoNext = (current < unlocked) && (current < FRAMES.length - 1);
+      elNext.disabled = !canGoNext;
+      elNext.classList.toggle('pulse', canGoNext);
+    }
 
-  async function render() {
-    buildDots();
-    setButtons();
-    await revealText(FRAMES[current]);
+    function revealText(str){
+      // Verberg knoppen tijdens typen
+      btnBar.hidden = true;
 
-    // ✅ Frame is volledig getoond → ontgrendel het VOLGENDE frame.
-    // Dat betekent dat je nu t/m current+1 mag openen.
-    unlocked = Math.max(unlocked, current + 1);
-    save();
+      elText.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      const spans = [];
+      for (const ch of str){
+        const s = document.createElement('span');
+        s.className = 'char';
+        s.textContent = ch;
+        spans.push(s);
+        frag.appendChild(s);
+      }
+      elText.appendChild(frag);
 
-    buildDots();
-    setButtons();
+      const noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (noMotion){
+        spans.forEach(s => s.classList.add('revealed'));
+        return Promise.resolve();
+      }
 
-    // Analytics hook (blijft gelijk)
-    window.dispatchEvent(new CustomEvent('story_frame_view', { detail: { index: current } }));
-  }
+      playing = true;
+      return new Promise(resolve=>{
+        let i = 0;
+        (function tick(){
+          if (i < spans.length){
+            spans[i++].classList.add('revealed');
+            setTimeout(tick, TYPE_SPEED);
+          } else {
+            playing = false;
+            resolve();
+          }
+        })();
+      });
+    }
 
-  function go(idx, force = false) {
-    if (playing && !force) return;
-    if (idx < 0 || idx >= FRAMES.length) return;
-    // Alleen naar frames die ontgrendeld zijn
-    if (idx > unlocked) return;
-    current = idx;
-    save();
+    async function render(){
+      buildDots();
+      await revealText(FRAMES[current]);
+
+      // na uittypen: volgende ontgrendelen
+      unlocked = Math.max(unlocked, current + 1);
+      save();
+
+      buildDots();
+      setButtons();
+
+      // knoppen nu pas tonen
+      btnBar.hidden = false;
+
+      // analytics hook
+      window.dispatchEvent(new CustomEvent('story_frame_view', { detail:{ index: current }}));
+    }
+
+    function go(idx, force=false){
+      if (playing && !force) return;
+      if (idx < 0 || idx >= FRAMES.length) return;
+      if (idx > unlocked) return;
+      current = idx;
+      save();
+      render();
+    }
+
+    elPrev.addEventListener('click', ()=> go(current - 1, true));
+    elNext.addEventListener('click', ()=> go(current + 1, true));
+
+    // Start
     render();
-  }
-
-  elPrev.addEventListener('click', () => go(current - 1, true));
-  elNext.addEventListener('click', () => go(current + 1, true));
-
-  // Start
-  render();
-</script>
-
+  </script>
 </body>
 </html>
