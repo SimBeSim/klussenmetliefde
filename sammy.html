@@ -1,300 +1,187 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AniFunny brief</title>
-  <meta name="description" content="Een geanimeerde brief gericht aan Samanta">
+  <meta charset="UTF-8">
+  <title>Sammy Logger</title>
   <style>
-    :root{
-      --bg:#0f1226; --panel:#161a36; --ink:#e8ecff; --muted:#b7c0ff; --accent:#7ae1ff;
-      --ok:#34A853; --ok2:#1d7a3e; --shadow:0 10px 30px rgba(0,0,0,.35);
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fafafa;
     }
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
-      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;}
-    .wrap{max-width:900px;margin:24px auto;padding:0 16px}
-    .card{background:linear-gradient(180deg,#14183a,#0e1230);border:1px solid #2a2f63;
-      border-radius:20px;box-shadow:var(--shadow);padding:22px 22px 26px}
-    .ttl{font-size:clamp(20px,6vw,34px);font-weight:800;margin:0 0 10px}
-    .progress{display:flex;gap:12px;align-items:center;margin:8px 0 18px;flex-wrap:wrap}
-    .dot{width:22px;height:22px;border-radius:999px;box-shadow:inset 0 0 0 2px #4250aa}
-    .dot.is-active{background:#56c7ff;box-shadow:0 0 0 3px #243164, inset 0 0 0 2px #56c7ff}
-    .dot.is-done{background:#5d65d8;opacity:.9}
-    .text{font-size:clamp(18px,5vw,30px);line-height:1.35;min-height:42vh}
-    /* nette afbreking zonder ‘wa↩︎arheid’ */
-    .text span{white-space:pre-wrap}
-    .text{overflow-wrap:anywhere}
-    .actions{display:flex;gap:14px;justify-content:flex-end;margin-top:18px}
-    .btn{border:none;border-radius:18px;padding:14px 18px;font-weight:700;cursor:pointer}
-    .btn:disabled{opacity:.35;cursor:not-allowed}
-    .btn--prev{background:#273061;color:#9fb1ff;transform:scale(.75)}
-    .btn--next{background:linear-gradient(180deg,var(--ok),var(--ok2));color:#fff;transform:scale(.75)}
-    .btn-icon{margin-left:10px;font-weight:900}
-    @media (min-width:480px){ .btn--prev,.btn--next{transform:scale(.9)} }
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      margin: 0 4px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+    .dot.active { background: #333; }
   </style>
-  <script>
-  // Your Apps Script endpoint:
-  const TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
-
-  // --- helpers ---
-  function sendBeaconSafe(payload) {
-    try {
-      if (!navigator.sendBeacon) return false;
-      // Use text/plain to avoid preflight
-      const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-      return navigator.sendBeacon(TRACK_URL, blob);
-    } catch { return false; }
-  }
-
-  function fetchNoCors(payload) {
-    try {
-      // text/plain + no-cors => no preflight
-      fetch(TRACK_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=UTF-8" },
-        body: JSON.stringify(payload)
-      });
-    } catch {}
-  }
-
-  function pixelPing(payload) {
-    try {
-      const q = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
-      const img = new Image();
-      // doGet handler will catch "p" param
-      img.src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
-      // don’t need to append to DOM
-    } catch {}
-  }
-
-  function send(payload) {
-    // Prefer beacon (reliable on unload)
-    if (sendBeaconSafe(payload)) return;
-    // Fallback: no-cors POST
-    fetchNoCors(payload);
-    // Last resort: GET pixel
-    pixelPing(payload);
-  }
-
-  // Public API
-  window.trackEvent = function(event, extra = {}) {
-    const data = {
-      ts: new Date().toISOString(),
-      path: location.pathname + location.search,
-      ref: document.referrer || "",
-      ua: navigator.userAgent,
-      vp: `${innerWidth}x${innerHeight}`,
-      event,
-      ...extra
-    };
-    send(data);
-  };
-
-  // Auto session start/end
-  addEventListener("DOMContentLoaded", () => trackEvent("session_start"));
-  addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-      trackEvent("session_end", { dur_ms: Math.round(performance.now()) });
-    }
-  });
-</script>
-
-
 </head>
 <body>
-  <main class="wrap">
-    <section class="card" aria-live="polite">
-      <div class="ttl">Lieve Samanta — een geanimeerde brief</div>
-      <div class="progress" id="progress" aria-label="Voortgang"></div>
-
-      <div id="text" class="text"></div>
-
-      <div class="actions">
-        <button id="prev" class="btn btn--prev" disabled>
-          Vorige
-          <span aria-hidden="true" class="btn-icon">◀</span>
-        </button>
-        <button id="next" class="btn btn--next" disabled>
-          Volgende
-          <span aria-hidden="true" class="btn-icon">▶</span>
-        </button>
-      </div>
-    </section>
-  </main>
+  <div class="container">
+    <h1>Sammy Demo</h1>
+    <div id="frame-content" class="card"></div>
+    <div class="controls">
+      <button id="prev">Vorige</button>
+      <div id="dots"></div>
+      <button id="next">Volgende</button>
+    </div>
+  </div>
 
   <script>
-  /* ================== PRIVACYVRIENDELIJKE TRACKER ================== */
-  const KML_TRACK_URL='/.netlify/functions/track';
-  const KML_SITE='klussenmetliefde';
-  const KML_PAGE=location.pathname;
+    /* ================== CONFIG ================== */
+   // const TRACK_URL = "https://script.google.com/macros/s/XXXXXXXX/exec"; // jouw Apps Script URL
+   // const TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
+    const TRACK_URL = "https://script.google.com/macros/s/AKfycbzdSXsTU-95p5Ek8jPdqWk96WSbeh7dVFMy1sgEhRD_gdTX2VYKW9c159umIQAyghD7/exec";
+    const FRAMES = [
+      "Welkom bij Sammy!",
+      "Dit is frame 2.",
+      "En dit is frame 3.",
+      "Laatste frame!"
+    ];
 
-  function kmlVID(){
-    let v=localStorage.getItem('kml_vid');
-    if(!v){ v=crypto.randomUUID(); localStorage.setItem('kml_vid',v); }
-    return v;
-  }
-  function kmlSID(){
-    let s=sessionStorage.getItem('kml_sid');
-    if(!s){ s=crypto.randomUUID(); sessionStorage.setItem('kml_sid',s); }
-    return s;
-  }
-  const KML_VID=kmlVID(), KML_SID=kmlSID();
+    /* ================== ID’s & GLOBALS ================== */
+    const SID = sessionStorage.sid || (sessionStorage.sid = crypto.randomUUID());
+    const VID = localStorage.vid  || (localStorage.vid  = crypto.randomUUID());
+    let CLIENT_IP = "";
 
-  async function kmlTrack(ev,data={}){
-    try{
-      const body={site:KML_SITE,page:KML_PAGE,ev,data,vid:KML_VID,sid:KML_SID,
-        ua:navigator.userAgent,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
-        day:new Date().toISOString().slice(0,10)};
-      await fetch(KML_TRACK_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-        keepalive:true, body:JSON.stringify(body)});
-    }catch(e){}
-  }
+    // Haal publiek IP
+    (async () => {
+      try {
+        const r = await fetch("https://api64.ipify.org?format=json");
+        const j = await r.json();
+        CLIENT_IP = j.ip || "";
+      } catch(_) {}
+    })();
 
-  let kmlFrameStartTS=null, kmlCurrentFrame=null;
-  function kmlFrameStart(idx){
-    // dwell vorige
-    if(kmlCurrentFrame!=null && kmlFrameStartTS!=null){
-      const ms=performance.now()-kmlFrameStartTS;
-      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
+    /* ================== TRACKING HELPERS ================== */
+    function sendBeaconSafe(payload) {
+      try {
+        if (!navigator.sendBeacon) return false;
+        const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
+        return navigator.sendBeacon(TRACK_URL, blob);
+      } catch { return false; }
     }
-    kmlCurrentFrame=idx;
-    kmlFrameStartTS=performance.now();
-    kmlTrack('frame_start',{frame:idx});
-  }
-  function kmlFrameReady(idx){ kmlTrack('frame_ready',{frame:idx}); }
-  function kmlNav(action,from,to){ kmlTrack('nav',{action,from,to}); }
-
-  kmlTrack('page_open',{});
-  addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='hidden' && kmlCurrentFrame!=null && kmlFrameStartTS!=null){
-      const ms=performance.now()-kmlFrameStartTS;
-      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
-      kmlTrack('page_hidden',{});
+    function fetchNoCors(payload) {
+      try {
+        fetch(TRACK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify(payload)
+        });
+      } catch {}
     }
-  });
-  addEventListener('beforeunload',()=>{
-    if(kmlCurrentFrame!=null && kmlFrameStartTS!=null){
-      const ms=performance.now()-kmlFrameStartTS;
-      kmlTrack('frame_dwell',{frame:kmlCurrentFrame,ms:Math.round(ms)});
+    function pixelPing(payload) {
+      try {
+        const q = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+        (new Image()).src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
+      } catch {}
     }
-    kmlTrack('page_close',{});
-  });
-  /* ================== /TRACKER ================== */
+    function send(payload) {
+      if (sendBeaconSafe(payload)) return;
+      fetchNoCors(payload);
+      pixelPing(payload);
+    }
 
-  // ====== Content ======
-  const FRAMES = [
-`Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd.`,
-`Ik heb fouten gemaakt. Geen van beiden is geholpen met verstoppen of verdraaien. Daarom schrijf ik — zacht, eerlijk en precies.`,
-`Wat ik zag en voelde ging groter worden dan wij beiden. Verliefdheid die geneest als waarheid lucht krijgt. Dat is wat ik hier doe.`,
-`Ik wens jou rust, veiligheid en ruimte om je eigen muziek te worden — zonder dat iemand je dwingt, inclusief ik.`,
-`Dank je voor alles wat jij onbedoeld in mij wakker maakte. Uit die vlam bouw ik iets goeds — publiek, open en zonder spelletjes.`,
-`Als je ooit wil weten hoe ver ik kwam met waarheid, je bent welkom. Geen druk. Alleen helderheid.`
-  ];
+    function track(event, extra = {}) {
+      const data = {
+        event,
+        ts: new Date().toISOString(),
+        path: location.pathname + location.search,
+        ref: document.referrer || "",
+        ua: navigator.userAgent,
+        vp: `${innerWidth}x${innerHeight}`,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        sid: SID,
+        vid: VID,
+        ip: CLIENT_IP,
+        ...extra
+      };
+      send(data);
+    }
 
-  // ====== UI refs ======
-  const elText = document.getElementById('text');
-  const elPrev = document.getElementById('prev');
-  const elNext = document.getElementById('next');
-  const elProgress = document.getElementById('progress');
+    /* ================== FRAME LOGIC ================== */
+    let idx = 0;
+    let frameStartTS = null;
+    let currentFrame = null;
 
-  // progress dots
-  const dots = [];
-  for(let i=0;i<FRAMES.length;i++){
-    const d=document.createElement('div');
-    d.className='dot';
-    dots.push(d);
-    elProgress.appendChild(d);
-  }
+    const elContent = document.getElementById('frame-content');
+    const elPrev = document.getElementById('prev');
+    const elNext = document.getElementById('next');
+    const elDots = document.getElementById('dots');
 
-  let idx=0, typing=false, typerCancel=null;
+    function setDots(i) {
+      elDots.innerHTML = FRAMES.map((_,j)=>
+        `<span class="dot ${j===i?"active":""}"></span>`).join("");
+    }
 
-  function setDots(i){
-    dots.forEach((d,k)=>{
-      d.classList.toggle('is-active', k===i);
-      d.classList.toggle('is-done', k<i);
-    });
-  }
-
-  function tokenize(sentence){
-    // houd spaties intact en voeg zachte afbreekhint rond lange woorden
-    // (we werken met pre-wrap zodat spaties blijven)
-    const tokens=[];
-    sentence.split(/(\s+)/).forEach(part=>{
-      if(part==='') return;
-      // break-oplossing: zachte afbreekbare hint in lange woorden
-      if(/\S/.test(part) && part.length>12){
-        // voeg &shy; in het midden
-        const mid=Math.floor(part.length/2);
-        part = part.slice(0,mid) + '\u00AD' + part.slice(mid);
+    function frameStart(i) {
+      // sluit vorige frame af
+      if (currentFrame != null && frameStartTS != null) {
+        const ms = performance.now() - frameStartTS;
+        track("frame_dwell", { frame: currentFrame, dur_ms: Math.round(ms) });
       }
-      tokens.push(part);
-    });
-    return tokens;
-  }
+      currentFrame = i;
+      frameStartTS = performance.now();
+      track("frame_start", { frame: i });
+    }
+    function frameReady(i) {
+      track("frame_ready", { frame: i });
+    }
+    function nav(action, from, to) {
+      track("nav", { action, from, to });
+    }
 
-  function typeText(sentence, onDone){
-    typing=true;
-    elPrev.disabled=true; elNext.disabled=true;
+    function showFrame(i) {
+      idx = i;
+      setDots(i);
+      frameStart(i);
+      elContent.textContent = FRAMES[i];
+      frameReady(i);
+    }
 
-    const tokens = tokenize(sentence);
-    elText.innerHTML='';
-    let i=0, canceled=false;
-    typerCancel = ()=>{ canceled=true; };
-
-    function step(){
-      if(canceled) return;
-
-      const span=document.createElement('span');
-      span.textContent = tokens[i];
-      elText.appendChild(span);
-
-      i++;
-      if(i<tokens.length){
-        // iets sneller op spaties
-        const delay = (/\s/.test(tokens[i-1])) ? 10 : 28;
-        setTimeout(step, delay);
-      }else{
-        typing=false;
-        elPrev.disabled = (idx===0);
-        elNext.disabled = (idx===FRAMES.length-1);
-        kmlFrameReady(idx);              // << TRACK: frame klaar
-        onDone && onDone();
+    elNext.addEventListener('click', ()=>{
+      const to = Math.min(idx+1, FRAMES.length-1);
+      if(to!==idx){
+        nav('next', idx, to);
+        showFrame(to);
       }
-    }
-    step();
-  }
+    });
+    elPrev.addEventListener('click', ()=>{
+      const to = Math.max(idx-1, 0);
+      if(to!==idx){
+        nav('prev', idx, to);
+        showFrame(to);
+      }
+    });
 
-  function showFrame(i){
-    if(typing && typerCancel) typerCancel();
-    idx=i;
-    setDots(i);
-    kmlFrameStart(i);                     // << TRACK: frame start
-    typeText(FRAMES[i]);
-    // scroll card in beeld (mobiel comfort)
-    document.querySelector('.card').scrollIntoView({behavior:'smooth',block:'start'});
-  }
-
-  elNext.addEventListener('click', ()=>{
-    if(typing) return;
-    const to = Math.min(idx+1, FRAMES.length-1);
-    if(to!==idx){
-      kmlNav('next', idx, to);            // << TRACK
-      showFrame(to);
-    }
-  });
-  elPrev.addEventListener('click', ()=>{
-    if(typing) return;
-    const to = Math.max(idx-1, 0);
-    if(to!==idx){
-      kmlNav('prev', idx, to);            // << TRACK
-      showFrame(to);
-    }
-  });
-
-  // init
-  setDots(0);
-  showFrame(0);
+    /* ================== SESSION EVENTS ================== */
+    addEventListener("DOMContentLoaded", () => {
+      showFrame(0);
+      track("session_start");
+    });
+    addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        track("session_end", { dur_ms: Math.round(performance.now()) });
+      }
+    });
   </script>
 </body>
 </html>
