@@ -198,7 +198,7 @@
     }
 
     // YouTube frame render
-    function renderYT({video,start=0,dur=25,autoadvance:true,text=""}){
+    function renderYT({video,start=0,dur=25,autoadvance=true,text=""}){
       elYTBox().style.display='block';
       elText().style.display='none';
       elHTML().style.display='none';
