@@ -317,15 +317,8 @@
       }
     }
 
-    // Load content
-    async function loadData(){
-      try{
-        const r = await fetch(DATA_URL, {cache:"no-store"});
-        if(!r.ok) throw new Error("no data.json");
-        SLIDES = await r.json();
-      }catch{
-        // Fallback demo: 1) progressive HTML (tabel), 2) text, 3) YouTube segment
-        SLIDES = [
+  async function loadData(){
+    const demo = [
           {
             title:"Tekst met type-effect",
             frames:[
@@ -337,33 +330,61 @@
             {type:"text", content:"Als je ooit wil weten hoe ver ik kwam met waarheid, je bent welkom. Geen druk. Alleen helderheid."}
             ]
           },
-          {
-            title:"YouTube-segment",
-            frames:[
-              {type:"youtube", video:"dQw4w9WgXcQ", start: 60, dur: 25, autoadvance:false, text:"We spelen 25 seconden vanaf 1:00."}
-            ]
-          }
-        ];
+      {
+        title:"Tabel – progressive HTML",
+        frames:[
+          {type:"html", html:`<table style="width:100%"><tr><th>Head</th></tr></table>`},
+          {type:"html", html:`<table style="width:100%"><tr><th>Head</th><th>ID</th></tr></table>`}
+        ]
       }
+    ];
+
+    try{
+      const r = await fetch(DATA_URL, {cache:"no-store"});
+      if(!r.ok) throw new Error(`data.json not ok (${r.status})`);
+      const json = await r.json();
+      if (!Array.isArray(json) || json.length===0) {
+        console.warn("data.json leeg/ongeldig → fallback demo");
+        SLIDES = demo;
+        return;
+      }
+      // Filter slides zonder frames
+      const cleaned = json
+        .map(s => ({...s, frames: Array.isArray(s.frames)? s.frames.filter(f=>f && f.type): []}))
+        .filter(s => s.frames.length>0);
+      if (cleaned.length===0) {
+        console.warn("data.json bevat geen bruikbare frames → fallback demo");
+        SLIDES = demo;
+      } else {
+        SLIDES = cleaned;
+        console.log(`Loaded data.json: ${SLIDES.length} slides`);
+      }
+    }catch(err){
+      console.warn("data.json laden faalde → fallback demo", err);
+      SLIDES = demo;
+    }
+  }
+
+  // ===== BOOT =====
+  addEventListener("DOMContentLoaded", async ()=>{
+    document.getElementById('prev').addEventListener('click', prevFrame);
+    document.getElementById('next').addEventListener('click', nextFrame);
+
+    await loadData();
+
+    // Safety: als er nog steeds niets is, gebruik demo
+    if (!Array.isArray(SLIDES) || SLIDES.length===0 || !SLIDES[0].frames?.length){
+      SLIDES = [{
+        title:"Fallback – tekst",
+        frames:[{type:"text", content:"Fallback frame. Als je dit ziet, werkt de speler; check data.json pad/inhoud."}]
+      }];
     }
 
-    /* ================== BOOT ================== */
-    addEventListener("DOMContentLoaded", async ()=>{
-      // UI hooks
-      document.getElementById('prev').addEventListener('click', prevFrame);
-      document.getElementById('next').addEventListener('click', nextFrame);
-
-      await loadData();
-      renderDots(SLIDES[0].frames.length);
-      showFrame();
-      track("session_start");
-    });
-    addEventListener("visibilitychange", ()=>{
-      if(document.visibilityState==="hidden"){
-        track("session_end",{dur_ms:Math.round(performance.now())});
-      }
-    });
-  </script>
+    renderDots(SLIDES[0].frames.length);
+    showFrame();               // start!
+    track("session_start");
+  });
+</script>
 </head>
 <body>
   <main class="wrap">
