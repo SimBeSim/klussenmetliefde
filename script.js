@@ -170,7 +170,7 @@
         i++;
         if(i<tokens.length){
           const delay=(/\s/.test(tokens[i-1]))?10:28;
-          setTimeout(step, delay * 20);
+          setTimeout(step, delay * 40);
         }else{
           // finished
           autoFit(box);
