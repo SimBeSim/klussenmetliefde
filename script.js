@@ -281,7 +281,7 @@
   async function loadData(){
     const demo = [
           {
-            "title":"Gericht aan Samanta bericht",
+            "title":"👇👉 Samanta 🖊️ 💬",
             "frames":[
             {"type":"text", "content":"Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat het heeft mij geleerd."},
             {"type":"text", "content":"Je kwam in mijn leven als een ster⭐. Ik zag in jou een Engel👼🏻 — een spiegel🪞 waarin ik mijn eigen hart💓 leerde zien."},
