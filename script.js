@@ -170,7 +170,7 @@
         i++;
         if(i<tokens.length){
           const delay=(/\s/.test(tokens[i-1]))?10:28;
-          setTimeout(step, delay);
+          setTimeout(step, delay * 2);
         }else{
           // finished
           autoFit(box);
@@ -280,7 +280,7 @@
   async function loadData(){
     const demo = [
           {
-            "title":"Tekst met type-effect",
+            "title":"Bericht gericht aan Samanta",
             "frames":[
             {"type":"text", "content":"Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd."},
             {"type":"text", "content":"Ik heb fouten gemaakt. Geen van beiden is geholpen met verstoppen of verdraaien. Daarom schrijf ik — zacht, eerlijk en precies."},
