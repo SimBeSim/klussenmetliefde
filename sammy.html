@@ -338,7 +338,7 @@
         ]
       }
     ];
-
+console.log(demo);
     try{
       const r = await fetch(DATA_URL, {cache:"no-store"});
       if(!r.ok) throw new Error(`data.json not ok (${r.status})`);
