@@ -170,7 +170,7 @@
         i++;
         if(i<tokens.length){
           const delay=(/\s/.test(tokens[i-1]))?10:28;
-          setTimeout(step, delay * 2);
+          setTimeout(step, delay * 4);
         }else{
           // finished
           autoFit(box);
@@ -242,7 +242,7 @@
       } else {
         renderHTML(`<div class="text">[Onbekend frame type: ${f.type}]</div>`);
       }
-      elTitle().textContent = slide.title || `Slide ${slideIdx+1}`;
+      elTitle().textContent = slide.title || `▶ ${slideIdx+1}`;
     }
 
     function nextFrame(){
