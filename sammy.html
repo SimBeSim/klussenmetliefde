@@ -1,106 +1,94 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Sammy Logger</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AniBrief – Slides & Frames</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #fafafa;
+    :root{
+      --bg:#0f1226; --panel:#161a36; --ink:#e8ecff; --muted:#b7c0ff; --accent:#7ae1ff;
+      --ok:#34A853; --ok2:#1d7a3e; --shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    .container {
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .controls {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-    }
-    .dot {
-      display: inline-block;
-      width: 10px; height: 10px;
-      margin: 0 4px;
-      border-radius: 50%;
-      background: #ccc;
-    }
-    .dot.active { background: #333; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Sammy Demo</h1>
-    <div id="frame-content" class="card"></div>
-    <div class="controls">
-      <button id="prev">Vorige</button>
-      <div id="dots"></div>
-      <button id="next">Volgende</button>
-    </div>
-  </div>
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;}
+    .wrap{max-width:900px;margin:24px auto;padding:0 16px}
+    .card{background:linear-gradient(180deg,#14183a,#0e1230);border:1px solid #2a2f63;
+      border-radius:20px;box-shadow:var(--shadow);padding:22px 22px 26px; position:relative;}
+    .ttl{font-size:clamp(20px,6vw,34px);font-weight:800;margin:0 0 10px}
+    .sub{font-size:14px;color:var(--muted);margin-bottom:10px}
+    .progress{display:flex;gap:10px;align-items:center;margin:8px 0 12px;flex-wrap:wrap}
+    .dot{width:14px;height:14px;border-radius:999px;box-shadow:inset 0 0 0 2px #4250aa}
+    .dot.is-active{background:#56c7ff;box-shadow:0 0 0 3px #243164, inset 0 0 0 2px #56c7ff}
+    .dot.is-done{background:#5d65d8;opacity:.9}
 
+    .stage{min-height:46vh; display:flex; justify-content:center; align-items:center; overflow:hidden}
+    .stage-inner{width:100%}
+
+    .text{font-size:clamp(18px,5vw,30px);line-height:1.35}
+    .text span{white-space:pre-wrap}
+    .text{overflow-wrap:anywhere}
+
+    .actions{display:flex;gap:14px;justify-content:flex-end;margin-top:18px}
+    .btn{border:none;border-radius:18px;padding:12px 18px;font-weight:700;cursor:pointer}
+    .btn:disabled{opacity:.35;cursor:not-allowed}
+    .btn--prev{background:#273061;color:#9fb1ff;transform:scale(.95)}
+    .btn--next{background:linear-gradient(180deg,var(--ok),var(--ok2));color:#fff;transform:scale(.95)}
+
+    /* YouTube container */
+    #ytbox{display:none; aspect-ratio:16/9; width:100%; border-radius:14px; overflow:hidden; margin:8px 0}
+  </style>
   <script>
     /* ================== CONFIG ================== */
-   // const TRACK_URL = "https://script.google.com/macros/s/XXXXXXXX/exec"; // jouw Apps Script URL
-   // const TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
-    const TRACK_URL = "https://script.google.com/macros/s/AKfycbzdSXsTU-95p5Ek8jPdqWk96WSbeh7dVFMy1sgEhRD_gdTX2VYKW9c159umIQAyghD7/exec";
-    const FRAMES = [
-      "Welkom bij Sammy!",
-      "Dit is frame 2.",
-      "En dit is frame 3.",
-      "Laatste frame!"
-    ];
+    const TRACK_URL = "https://script.google.com/macros/s/AKfycbx7DBIjkcidyuLFWdzH0Cs859jvzCfrvqWRFa00YaiXilj4H2-7vc8EpMu0rxJFI1DAXg/exec";
+    const DATA_URL  = "data.json"; // optioneel; als niet gevonden, gebruiken we demo data
 
-    /* ================== ID’s & GLOBALS ================== */
+    /* ================== IDs & GLOBALS ================== */
     const SID = sessionStorage.sid || (sessionStorage.sid = crypto.randomUUID());
     const VID = localStorage.vid  || (localStorage.vid  = crypto.randomUUID());
-    let CLIENT_IP = "";
 
-    // Haal publiek IP
-    (async () => {
-      try {
+    // ------- IP caching (in-memory + sessionStorage) -------
+    let CLIENT_IP = sessionStorage.getItem("client_ip") || null;
+    async function getIP(){
+      if (CLIENT_IP) return CLIENT_IP;
+      try{
         const r = await fetch("https://api64.ipify.org?format=json");
         const j = await r.json();
         CLIENT_IP = j.ip || "";
-      } catch(_) {}
-    })();
-
-    /* ================== TRACKING HELPERS ================== */
-    function sendBeaconSafe(payload) {
-      try {
-        if (!navigator.sendBeacon) return false;
-        const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-        return navigator.sendBeacon(TRACK_URL, blob);
-      } catch { return false; }
+        sessionStorage.setItem("client_ip", CLIENT_IP);
+      }catch{ CLIENT_IP = ""; }
+      return CLIENT_IP;
     }
-    function fetchNoCors(payload) {
-      try {
+    getIP(); // fire-and-forget
+
+    /* ================== LIGHTWEIGHT TRACKER ================== */
+    function sendBeaconSafe(payload){
+      try{
+        if(!navigator.sendBeacon) return false;
+        const blob = new Blob([JSON.stringify(payload)], {type:"text/plain"});
+        return navigator.sendBeacon(TRACK_URL, blob);
+      }catch{ return false; }
+    }
+    function fetchNoCors(payload){
+      try{
         fetch(TRACK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          method:"POST", mode:"no-cors",
+          headers:{ "Content-Type":"text/plain;charset=UTF-8" },
           body: JSON.stringify(payload)
         });
-      } catch {}
+      }catch{}
     }
-    function pixelPing(payload) {
-      try {
+    function pixelPing(payload){
+      try{
         const q = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
         (new Image()).src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
-      } catch {}
+      }catch{}
     }
-    function send(payload) {
+    function send(payload){
       if (sendBeaconSafe(payload)) return;
       fetchNoCors(payload);
       pixelPing(payload);
     }
-
-    function track(event, extra = {}) {
+    function track(event, extra={}){
       const data = {
         event,
         ts: new Date().toISOString(),
@@ -111,77 +99,305 @@
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
         sid: SID,
         vid: VID,
-        ip: CLIENT_IP,
+        ip: CLIENT_IP || "",
         ...extra
       };
       send(data);
     }
 
-    /* ================== FRAME LOGIC ================== */
-    let idx = 0;
-    let frameStartTS = null;
-    let currentFrame = null;
+    /* ================== YOUTUBE SEGMENTS ================== */
+    // IFrame API loader
+    let ytAPIReady = false, ytPlayer = null, ytOnReadyQueue = [];
+    function onYouTubeIframeAPIReady(){ ytAPIReady = true; ytOnReadyQueue.forEach(fn=>fn()); ytOnReadyQueue=[]; }
+    (function loadYT(){ const s=document.createElement('script'); s.src="https://www.youtube.com/iframe_api"; document.head.appendChild(s); })();
 
-    const elContent = document.getElementById('frame-content');
-    const elPrev = document.getElementById('prev');
-    const elNext = document.getElementById('next');
-    const elDots = document.getElementById('dots');
-
-    function setDots(i) {
-      elDots.innerHTML = FRAMES.map((_,j)=>
-        `<span class="dot ${j===i?"active":""}"></span>`).join("");
+    function ensureYTPlayer(onReady){
+      if(ytPlayer){ onReady(); return; }
+      const fn = () => {
+        const el = document.getElementById("ytplayer");
+        ytPlayer = new YT.Player(el, {
+          height: "390", width: "640", events:{
+            onReady: ()=>onReady()
+          },
+          playerVars:{ rel:0, modestbranding:1, controls:1 }
+        });
+      };
+      if(ytAPIReady) fn(); else ytOnReadyQueue.push(fn);
     }
 
-    function frameStart(i) {
-      // sluit vorige frame af
-      if (currentFrame != null && frameStartTS != null) {
+    function playSegment(videoId, startSec, durationSec, onDone){
+      ensureYTPlayer(()=>{
+        const endSec = startSec + durationSec;
+        ytPlayer.loadVideoById({ videoId, startSeconds:startSec, endSeconds:endSec, suggestedQuality:"hd720" });
+        const check = setInterval(()=>{
+          const t = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+          if (t >= endSec - 0.2) {
+            clearInterval(check);
+            ytPlayer.pauseVideo && ytPlayer.pauseVideo();
+            onDone && onDone();
+          }
+        }, 200);
+      });
+    }
+
+    /* ================== CONTENT RENDER ENGINE ================== */
+    // Slides-structuur: [{title, frames:[{type:"text"|"html"|"youtube", content/html/video...}]}]
+    let SLIDES = []; // wordt gevuld via fetch(DATA_URL) of fallback demo
+
+    const elText   = () => document.getElementById('text');
+    const elHTML   = () => document.getElementById('htmlbox');
+    const elYTBox  = () => document.getElementById('ytbox');
+    const elDots   = () => document.getElementById('progress');
+    const elPrev   = () => document.getElementById('prev');
+    const elNext   = () => document.getElementById('next');
+    const elTitle  = () => document.getElementById('title');
+
+    let slideIdx = 0, frameIdx = 0;
+    let typing=false, typerCancel=null;
+    let frameStartTS = null, currentFrame = null;
+
+    // dots
+    function renderDots(n){
+      const p = elDots(); p.innerHTML = "";
+      for(let i=0;i<n;i++){ const d=document.createElement('div'); d.className='dot'; p.appendChild(d); }
+    }
+    function setDotsActive(i){
+      const dots = elDots().children;
+      for(let k=0;k<dots.length;k++){
+        dots[k].classList.toggle('is-active', k===i);
+        dots[k].classList.toggle('is-done', k<i);
+      }
+    }
+
+    // typewriter for text frames + autofit
+    function tokenize(sentence){
+      const tokens=[]; sentence.split(/(\s+)/).forEach(part=>{
+        if(part==='') return;
+        if(/\S/.test(part) && part.length>18){
+          const mid=Math.floor(part.length/2);
+          part = part.slice(0,mid) + '\u00AD' + part.slice(mid);
+        }
+        tokens.push(part);
+      }); return tokens;
+    }
+    function autoFit(container){
+      // reduce font-size until content pasts within stage
+      const target = document.querySelector('.stage');
+      const el = container;
+      let size = parseFloat(getComputedStyle(el).fontSize) || 28;
+      let tries = 0;
+      while(tries<20 && el.scrollHeight > target.clientHeight){
+        size -= 1; tries += 1;
+        el.style.fontSize = size + "px";
+      }
+    }
+    function typeText(sentence, onDone){
+      typing=true;
+      elPrev().disabled=true; elNext().disabled=true;
+      const box = elText();
+      box.innerHTML=''; box.style.display='block';
+      elHTML().style.display='none';
+      elYTBox().style.display='none';
+
+      const tokens = tokenize(sentence);
+      let i=0, canceled=false;
+      typerCancel = ()=>{ canceled=true; };
+      function step(){
+        if(canceled) return;
+        const span=document.createElement('span');
+        span.textContent=tokens[i];
+        box.appendChild(span);
+        i++;
+        if(i<tokens.length){
+          const delay=(/\s/.test(tokens[i-1]))?10:28;
+          setTimeout(step, delay);
+        }else{
+          // finished
+          autoFit(box);
+          typing=false;
+          elPrev().disabled = (slideIdx===0 && frameIdx===0);
+          elNext().disabled = false;
+          track("frame_ready",{frame: frameKey()});
+          onDone && onDone();
+        }
+      }
+      step();
+    }
+
+    // HTML frame render
+    function renderHTML(html){
+      const box = elHTML();
+      box.style.display='block';
+      elText().style.display='none';
+      elYTBox().style.display='none';
+      box.innerHTML = html;
+      autoFit(box);
+      elPrev().disabled = (slideIdx===0 && frameIdx===0);
+      elNext().disabled = false;
+      track("frame_ready",{frame: frameKey()});
+    }
+
+    // YouTube frame render
+    function renderYT({video,start=0,dur=25,autoadvance:true,text=""}){
+      elYTBox().style.display='block';
+      elText().style.display='none';
+      elHTML().style.display='none';
+
+      // optioneel begeleidende tekst boven video
+      if (text) { elHTML().style.display='block'; elHTML().innerHTML = `<div class="text">${text}</div>`; }
+
+      playSegment(video, start, dur, ()=>{
+        track("yt_segment_done",{frame: frameKey(), video, start, dur});
+        if (autoadvance) nextFrame();
+        else { elPrev().disabled = false; elNext().disabled=false; }
+      });
+      track("frame_ready",{frame: frameKey(), video, start, dur});
+    }
+
+    function frameKey(){ return `${slideIdx}:${frameIdx}`; }
+
+    function frameStart(){
+      if (currentFrame!=null && frameStartTS!=null){
         const ms = performance.now() - frameStartTS;
-        track("frame_dwell", { frame: currentFrame, dur_ms: Math.round(ms) });
+        track("frame_dwell",{frame: currentFrame, dur_ms: Math.round(ms)});
       }
-      currentFrame = i;
+      currentFrame = frameKey();
       frameStartTS = performance.now();
-      track("frame_start", { frame: i });
-    }
-    function frameReady(i) {
-      track("frame_ready", { frame: i });
-    }
-    function nav(action, from, to) {
-      track("nav", { action, from, to });
+      track("frame_start",{frame: currentFrame});
     }
 
-    function showFrame(i) {
-      idx = i;
-      setDots(i);
-      frameStart(i);
-      elContent.textContent = FRAMES[i];
-      frameReady(i);
-    }
+    function showFrame(){
+      const slide = SLIDES[slideIdx];
+      const f = slide.frames[frameIdx];
 
-    elNext.addEventListener('click', ()=>{
-      const to = Math.min(idx+1, FRAMES.length-1);
-      if(to!==idx){
-        nav('next', idx, to);
-        showFrame(to);
+      setDotsActive(frameIdx);
+      frameStart();
+
+      if (f.type === "text"){
+        typeText(f.content, null);
+      } else if (f.type === "html"){
+        renderHTML(f.html);
+      } else if (f.type === "youtube"){
+        renderYT(f);
+      } else {
+        renderHTML(`<div class="text">[Onbekend frame type: ${f.type}]</div>`);
       }
-    });
-    elPrev.addEventListener('click', ()=>{
-      const to = Math.max(idx-1, 0);
-      if(to!==idx){
-        nav('prev', idx, to);
-        showFrame(to);
-      }
-    });
+      elTitle().textContent = slide.title || `Slide ${slideIdx+1}`;
+    }
 
-    /* ================== SESSION EVENTS ================== */
-    addEventListener("DOMContentLoaded", () => {
-      showFrame(0);
+    function nextFrame(){
+      if(typing && typerCancel) { typerCancel(); typing=false; }
+      const slide = SLIDES[slideIdx];
+      if (frameIdx < slide.frames.length-1){
+        const to = frameIdx+1; track("nav",{action:"next",from:frameIdx,to});
+        frameIdx = to; showFrame();
+      } else {
+        // naar volgende slide of klaar
+        if (slideIdx < SLIDES.length-1){
+          slideIdx++; frameIdx=0;
+          renderDots(SLIDES[slideIdx].frames.length);
+          track("nav",{action:"next_slide",from: "s"+(slideIdx-1), to: "s"+slideIdx});
+          showFrame();
+        } else {
+          renderHTML(`<div class="text">Einde. ❤️</div>`);
+          elNext().disabled = true;
+        }
+      }
+    }
+    function prevFrame(){
+      if(typing && typerCancel) { typerCancel(); typing=false; }
+      if (frameIdx>0){
+        const to = frameIdx-1; track("nav",{action:"prev",from:frameIdx,to});
+        frameIdx = to; showFrame();
+      } else if (slideIdx>0){
+        slideIdx--; frameIdx = SLIDES[slideIdx].frames.length-1;
+        renderDots(SLIDES[slideIdx].frames.length);
+        track("nav",{action:"prev_slide",from: "s"+(slideIdx+1), to: "s"+slideIdx});
+        showFrame();
+      }
+    }
+
+    // Load content
+    async function loadData(){
+      try{
+        const r = await fetch(DATA_URL, {cache:"no-store"});
+        if(!r.ok) throw new Error("no data.json");
+        SLIDES = await r.json();
+      }catch{
+        // Fallback demo: 1) progressive HTML (tabel), 2) text, 3) YouTube segment
+        SLIDES = [
+          {
+            title:"Tabel – progressive HTML",
+            frames:[
+              {type:"html", html:`<table style="width:100%"><tr><th></th></tr></table>`},
+              {type:"html", html:`<table style="width:100%"><tr><th>H</th></tr></table>`},
+              {type:"html", html:`<table style="width:100%"><tr><th>He</th></tr></table>`},
+              {type:"html", html:`<table style="width:100%"><tr><th>Head</th></tr></table>`},
+              {type:"html", html:`<table style="width:100%"><tr><th>Head</th><th></th></tr></table>`},
+              {type:"html", html:`<table style="width:100%"><tr><th>Head</th><th>ID</th></tr></table>`}
+            ]
+          },
+          {
+            title:"Tekst met type-effect",
+            frames:[
+            {type:"text", content:"Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat wij mij hebben geleerd."},
+            {type:"text", content:"Ik heb fouten gemaakt. Geen van beiden is geholpen met verstoppen of verdraaien. Daarom schrijf ik — zacht, eerlijk en precies."},
+            {type:"text", content:"Wat ik zag en voelde ging groter worden dan wij beiden. Verliefdheid die geneest als waarheid lucht krijgt. Dat is wat ik hier doe."},
+            {type:"text", content:"Ik wens jou rust, veiligheid en ruimte om je eigen muziek te worden — zonder dat iemand je dwingt, inclusief ik."},
+            {type:"text", content:"Dank je voor alles wat jij onbedoeld in mij wakker maakte. Uit die vlam bouw ik iets goeds — publiek, open en zonder spelletjes."},
+            {type:"text", content:"Als je ooit wil weten hoe ver ik kwam met waarheid, je bent welkom. Geen druk. Alleen helderheid."}
+            ]
+          },
+          {
+            title:"YouTube-segment",
+            frames:[
+              {type:"youtube", video:"dQw4w9WgXcQ", start: 60, dur: 25, autoadvance:false, text:"We spelen 25 seconden vanaf 1:00."}
+            ]
+          }
+        ];
+      }
+    }
+
+    /* ================== BOOT ================== */
+    addEventListener("DOMContentLoaded", async ()=>{
+      // UI hooks
+      document.getElementById('prev').addEventListener('click', prevFrame);
+      document.getElementById('next').addEventListener('click', nextFrame);
+
+      await loadData();
+      renderDots(SLIDES[0].frames.length);
+      showFrame();
       track("session_start");
     });
-    addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        track("session_end", { dur_ms: Math.round(performance.now()) });
+    addEventListener("visibilitychange", ()=>{
+      if(document.visibilityState==="hidden"){
+        track("session_end",{dur_ms:Math.round(performance.now())});
       }
     });
   </script>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" aria-live="polite">
+      <div class="ttl" id="title">AniBrief</div>
+      <div class="sub">Slide <span id="slideNo"></span></div>
+      <div class="progress" id="progress" aria-label="Voortgang"></div>
+
+      <div class="stage">
+        <div class="stage-inner">
+          <div id="text" class="text"></div>
+          <div id="htmlbox" class="text" style="display:none"></div>
+          <div id="ytbox">
+            <div id="ytplayer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="prev" class="btn btn--prev" disabled>Terug ◀</button>
+        <button id="next" class="btn btn--next">Verder ▶</button>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
