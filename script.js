@@ -361,7 +361,7 @@ async function loadPageJsonAndStart(){
     document.getElementById('prev').addEventListener('click', prevFrame);
     document.getElementById('next').addEventListener('click', nextFrame);
 
-    await loadPageJsonAndStart();
+    //await loadPageJsonAndStart();
 
     // Safety: als er nog steeds niets is, gebruik demo
     if (!Array.isArray(SLIDES) || SLIDES.length===0 || !SLIDES[0].frames?.length){
