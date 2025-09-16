@@ -103,6 +103,7 @@
     /* ================== CONTENT RENDER ENGINE ================== */
     // Slides-structuur: [{title, frames:[{type:"text"|"html"|"youtube", content/html/video...}]}]
     let SLIDES = []; // wordt gevuld via fetch(DATA_URL) of fallback demo
+    let META = {}; // globale meta (document title, heading, project, ...)
 
     const elText   = () => document.getElementById('text');
     const elHTML   = () => document.getElementById('htmlbox');
@@ -226,25 +227,31 @@
       frameStartTS = performance.now();
       track("frame_start",{frame: currentFrame});
     }
+function showFrame(){
+  // veilige guard: check of slide en frames bestaan
+  const slide = SLIDES[slideIdx];
+  if (!slide || !Array.isArray(slide.frames) || slide.frames.length === 0) {
+    console.warn(`showFrame: geen geldige slide gevonden op index ${slideIdx}. SLIDES.length=${SLIDES.length}`);
+    return;
+  }
 
-    function showFrame(){
-      const slide = SLIDES[slideIdx];
-      const f = slide.frames[frameIdx];
+  const f = slide.frames[frameIdx];
 
-      setDotsActive(frameIdx);
-      frameStart();
+  setDotsActive(frameIdx);
+  frameStart();
 
-      if (f.type === "text"){
-        typeText(f.content, null);
-      } else if (f.type === "html"){
-        renderHTML(f.html);
-      } else if (f.type === "youtube"){
-        renderYT(f);
-      } else {
-        renderHTML(`<div class="text">[Onbekend frame type: ${f.type}]</div>`);
-      }
-      elTitle().textContent = slide.title || `▶ ${slideIdx+1}`;
-    }
+  if (f.type === "text"){
+    typeText(f.content, null);
+  } else if (f.type === "html"){
+    renderHTML(f.html);
+  } else if (f.type === "youtube"){
+    renderYT(f);
+  } else {
+    renderHTML(`<div class="text">[Onbekend frame type: ${f.type}]</div>`);
+  }
+  elTitle().textContent = slide.title || `▶ ${slideIdx+1}`;
+}
+
 
     function nextFrame(){
       if(typing && typerCancel) { typerCancel(); typing=false; }
@@ -308,23 +315,25 @@ async function loadPageJsonAndStart(){
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const json = await r.json();
 
-    // Zet globals die renderer verwacht
-    window.META = json.meta || {};
-    window.SLIDES = Array.isArray(json.slides) ? json.slides : [];
+    // Zet globals die renderer verwacht — let op: we zetten de lokale variabelen (niet alleen window.*)
+    META = json.meta || {};
+    SLIDES = Array.isArray(json.slides) ? json.slides : [];
 
     // Document title + visible heading (als je #title element hebt)
-    if (window.META.pageTitle) document.title = window.META.pageTitle;
+    if (META.pageTitle) document.title = META.pageTitle;
     const titleEl = document.getElementById('title');
-    if (titleEl && window.META.heading) titleEl.textContent = window.META.heading;
+    if (titleEl && META.heading) titleEl.textContent = META.heading;
 
     // start renderer (aanpassingen: jouw renderer heeft renderDots/showFrame)
     if (typeof renderDots === 'function') {
       renderDots(SLIDES[0] ? SLIDES[0].frames.length : 0);
     }
+
+    // reset indices als je renderer die gebruikt
+    slideIdx = 0;
+    frameIdx = 0;
+
     if (typeof showFrame === 'function') {
-      // reset indices if je renderer gebruikt
-      if (typeof slideIdx !== 'undefined') slideIdx = 0;
-      if (typeof frameIdx !== 'undefined') frameIdx = 0;
       showFrame();
     } else {
       console.warn('Renderer functions (renderDots/showFrame) niet gevonden - controleer integratie.');
@@ -343,6 +352,7 @@ async function loadPageJsonAndStart(){
     }
   }
 }
+
 
 
 
