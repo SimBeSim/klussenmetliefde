@@ -62,6 +62,7 @@
         ip: CLIENT_IP || "",
         ...extra
       };
+      console.log(data);
       send(data);
     }
 
