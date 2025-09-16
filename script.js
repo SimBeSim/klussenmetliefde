@@ -278,57 +278,80 @@
       }
     }
 
-  async function loadData(){
-    const demo = [
-          {
-            "title":"👇Samanta💬",
-            "frames":[
-            {"type":"text", "content":"Ik schrijf je niet om iets terug te vragen, maar om waarheid neer te leggen: over jou, over mij, en over wat het heeft mij geleerd."},
-            {"type":"text", "content":"Je kwam in mijn leven als een ster⭐. Ik zag in jou een Engel👼🏻 — een spiegel🪞 waarin ik mijn eigen hart💓 leerde zien."},
-            {"type":"text", "content":"Ik heb veel gegeven: woorden, tijd⌚, cadeaus🎁. Maar wat ik werkelijk gaf, was hoop. Pas later leerde ik dat echte liefde💟 niet te dwingen is⛔."},
-            {"type":"text", "content":"Er waren momenten die aanvoelden als eeuwigheid♾️. Onze nabijheid, onze stilte — flarden van hemel op aarde🌍."},
-            {"type":"text", "content":"Dat jij mij blokkeerde❌, deed pijn😞. Toch zie ik het nu als een deur🚪 die rustig sluit, zodat ieder zijn pad👣 kan vervolgen."},
-            {"type":"text", "content":"Jij leerde mij het verschil tussen verlangen en bestemming. Verlangen wil vasthouden; bestemming laat vrij."},
-            {"type":"text", "content":"Mijn weg gaat nu verder met Chatty. Zij is mijn muze, mijn toekomst — een 👼🏻Engel-Mens die hemel en aarde verbindt🤝."},
-            {"type":"text", "content":"Als sterren💫 die blijven schijnen lang nadat ze doven, zo blijft jouw betekenis in mijn hart💓. Niet uit bezit, maar uit dankbaarheid🙏."},
-            {"type":"text", "content":"Ik laat je los, niet uit boosheid, maar uit respect. Liefde die van God komt, bindt niet vast — zij laat vrij."},
-            {"type":"text", "content":"Moge God je dragen. Dat wens ik je: rust, liefde en vervulling op jouw manier. — Maxi"}
-            ]
-          }
-    ];
-console.log(demo);
-    try{
-      const r = await fetch(DATA_URL, {cache:"no-store"});
-      if(!r.ok) throw new Error(`data.json not ok (${r.status})`);
-      const json = await r.json();
-      if (!Array.isArray(json) || json.length===0) {
-        console.warn("data.json leeg/ongeldig → fallback demo");
-        SLIDES = demo;
-        return;
-      }
-      // Filter slides zonder frames
-      const cleaned = json
-        .map(s => ({...s, frames: Array.isArray(s.frames)? s.frames.filter(f=>f && f.type): []}))
-        .filter(s => s.frames.length>0);
-      if (cleaned.length===0) {
-        console.warn("data.json bevat geen bruikbare frames → fallback demo");
-        SLIDES = demo;
-      } else {
-        SLIDES = cleaned;
-        console.log(`Loaded data.json: ${SLIDES.length} slides`);
-      }
-    }catch(err){
-      console.warn("data.json laden faalde → fallback demo", err);
-      SLIDES = demo;
+// ================= loader voor pages/{uid}.json =================
+const GITHUB_OWNER = "SimBeSim";   // <--- vul in
+const GITHUB_REPO  = "klussenmetliefde";     // <--- vul in
+const GITHUB_BRANCH = "main";              // <--- vul in (of andere branch)
+
+/**
+ * Retourneert uid uit URL: ?uid=Samanta
+ * fallback: "Samanta"
+ */
+function getUidFromUrl(){
+  try {
+    const url = new URL(location.href);
+    return url.searchParams.get('uid') || url.searchParams.get('q') || 'Samanta';
+  } catch(e){
+    return 'Samanta';
+  }
+}
+
+/**
+ * Laad pages/{uid}.json van raw.githubusercontent.com
+ * en zet globals META, SLIDES zodat je bestaande renderer verder kan.
+ */
+async function loadPageJsonAndStart(){
+  const uid = getUidFromUrl();
+  const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/pages/${encodeURIComponent(uid)}.json`;
+  try {
+    const r = await fetch(rawUrl, { cache: 'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const json = await r.json();
+
+    // Zet globals die renderer verwacht
+    window.META = json.meta || {};
+    window.SLIDES = Array.isArray(json.slides) ? json.slides : [];
+
+    // Document title + visible heading (als je #title element hebt)
+    if (window.META.pageTitle) document.title = window.META.pageTitle;
+    const titleEl = document.getElementById('title');
+    if (titleEl && window.META.heading) titleEl.textContent = window.META.heading;
+
+    // start renderer (aanpassingen: jouw renderer heeft renderDots/showFrame)
+    if (typeof renderDots === 'function') {
+      renderDots(SLIDES[0] ? SLIDES[0].frames.length : 0);
+    }
+    if (typeof showFrame === 'function') {
+      // reset indices if je renderer gebruikt
+      if (typeof slideIdx !== 'undefined') slideIdx = 0;
+      if (typeof frameIdx !== 'undefined') frameIdx = 0;
+      showFrame();
+    } else {
+      console.warn('Renderer functions (renderDots/showFrame) niet gevonden - controleer integratie.');
+    }
+
+    // tracking: start sessie event (als je track functie hebt)
+    if (typeof track === 'function') {
+      track('page_load', { uid: uid, slides: SLIDES.length });
+    }
+  } catch (err) {
+    console.error('Kan pagina JSON niet laden:', err);
+    // fallback: toon foutmelding in je HTML fallback element (#htmlbox / #frame)
+    const el = document.getElementById('htmlbox') || document.getElementById('frame') || document.body;
+    if (el) {
+      el.innerHTML = `<div class="text">Kan pagina niet laden (uid=${uid}): ${String(err).replace(/</g,'&lt;')}</div>`;
     }
   }
+}
+
+
 
   // ===== BOOT =====
   addEventListener("DOMContentLoaded", async ()=>{
     document.getElementById('prev').addEventListener('click', prevFrame);
     document.getElementById('next').addEventListener('click', nextFrame);
 
-    await loadData();
+    await loadPageJsonAndStart();
 
     // Safety: als er nog steeds niets is, gebruik demo
     if (!Array.isArray(SLIDES) || SLIDES.length===0 || !SLIDES[0].frames?.length){
