@@ -28,42 +28,57 @@
     getIP(); // fire-and-forget
 
     /* ================== LIGHTWEIGHT TRACKER ================== */
-    function sendBeaconSafe(payload) {
-        try {
-            if (!navigator.sendBeacon)
-                return false;
-            const blob = new Blob([JSON.stringify(payload)], {
-                type: "text/plain"
-            });
-            return navigator.sendBeacon(TRACK_URL, blob);
-        } catch {
-            return false;
-        }
+    // ================== LIGHTWEIGHT TRACKER (gerepareerd voor CORB) ==================
+function sendBeaconSafe(payload){
+  try{
+    if(!navigator.sendBeacon) return false;
+    const blob = new Blob([JSON.stringify(payload)], {type:"text/plain"});
+    return navigator.sendBeacon(TRACK_URL, blob);
+  }catch{ return false; }
+}
+
+// fetchNoCors: maak het echt "fire-and-forget" en voorkom preflight.
+// Belangrijk: geen headers zetten in mode:'no-cors' en NIET proberen response te lezen.
+function fetchNoCors(payload){
+  try{
+    // Gebruik body direct; zet géén headers (dat voorkomt CORS preflight).
+    fetch(TRACK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify(payload)
+    }).catch(()=>{/* swallow errors */});
+  }catch{}
+}
+
+// pixelPing: image ping, base64 -> encodeURIComponent(btoa(...))
+// Vereenvoudigd en veiliger dan unescape/encodeURIComponent combinatie.
+function pixelPing(payload){
+  try{
+    // use plain base64 of UTF-8-safe approach:
+    const json = JSON.stringify(payload);
+    // btoa werkt op een byte-string; voor veilig UTF-8:
+    function utf8_to_b64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
     }
-    function fetchNoCors(payload) {
-        try {
-            fetch(TRACK_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "text/plain;charset=UTF-8"
-                },
-                body: JSON.stringify(payload)
-            });
-        } catch {}
-    }
-    function pixelPing(payload) {
-        try {
-            const q = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
-            (new Image()).src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
-        } catch {}
-    }
-    function send(payload) {
-        if (sendBeaconSafe(payload))
-            return;
-        fetchNoCors(payload);
-        pixelPing(payload);
-    }
+    const q = encodeURIComponent(utf8_to_b64(json));
+    const img = new Image();
+    img.src = `${TRACK_URL}?p=${q}&_=${Date.now()}`;
+    // keep reference briefly to increase chance of delivery
+    window.__sammy_pixel = img;
+  }catch{}
+}
+
+// master send: probeer beacon -> image -> fetch (in die volgorde)
+function send(payload){
+  try{
+    if (sendBeaconSafe(payload)) return;
+    // beacon failed -> eerst pixel (werkt in meeste situaties)
+    pixelPing(payload);
+    // en alsnog een fire-and-forget fetchNoCors als extra poging
+    fetchNoCors(payload);
+  }catch{}
+}
+
     function track(event, extra = {}) {
         const data = {
             event,
