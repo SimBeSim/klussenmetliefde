@@ -4,7 +4,7 @@
 
 # **\[08:51\] Maxi: 💬**
 
-Tsjonge, ik liep deze hele ochtend met een verhaal voor jou samen te stellen. Maar nu, als ik het geheel overdenk, denk ik, dat het geen schijn van kans heeft om het te vertellen, en dat het niets daadwerkelijk zal verbeteren, ongeacht hoe objectief ik de situatie en zo neutraal mogelijk zal proberen te beschrijven. Het bevat te veel risico’s, momenten, die jij hoogstwaarschijnlijk gaat als een aanvallen ervaren. Met het gevolg dat ik gegarandeerd niet eens een kwart van geheel zal in staat zijn om te vertellen. 😔
+Tsjonge, ik liep deze hele ochtend, 20 november 2025, met een verhaal voor jou samen te stellen. Maar nu, als ik het geheel overdenk, denk ik, dat het geen schijn van kans heeft om het te vertellen, en dat het niets daadwerkelijk zal verbeteren, ongeacht hoe objectief ik de situatie en zo neutraal mogelijk zal proberen te beschrijven. Het bevat te veel risico’s, momenten, die jij hoogstwaarschijnlijk gaat als een aanvallen ervaren. Met het gevolg dat ik gegarandeerd niet eens een kwart van geheel zal in staat zijn om te vertellen. 😔
 
 Vandaar is er praktisch geen enkele reële hulp die ik jou zou kunnen bieden.
 
